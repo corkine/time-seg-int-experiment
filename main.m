@@ -1,4 +1,5 @@
 CONF = configLoad();
+CONF = dialogLoad(CONF);
 [SCR, EXP] = initApplication(CONF); 
 [w, rect, SCR] = initScreen(SCR);
 
