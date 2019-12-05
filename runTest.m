@@ -51,6 +51,9 @@ while (switch_on==1 && K<Flashcards_Repetition_K)
 end
 
 EXP.totalTime = t02_offset_real - Stimuli_onset;
+EXP.repeatReal = (EXP.totalTime + ISI) / (Flashcard_1_Duration + ISI + Flashcard_2_Duration + ISI);
+EXP.missFrame = ((Flashcard_1_Duration + ISI + Flashcard_2_Duration)* Flashcards_Repetition_K + ...
+	(Flashcards_Repetition_K - 1 )* ISI - EXP.totalTime) / SCR.frameDuration;
 end
 
 function EXP = initExperiment(EXP, repeat, duration1, duration2, isi)

@@ -22,6 +22,7 @@ else
         CONF.name = anst{2,1};
         CONF.gender = str2double(anst{3,1});
         CONF.note = anst{4,1};
+        CONF.startTime = join(string(clock),'_');
     end
 end
 end

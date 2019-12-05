@@ -4,8 +4,20 @@ CONF = dialogLoad(CONF);
 [w, rect, SCR] = initScreen(SCR);
 
 try
+    % [SCR, EXP] = runTest(SCR, EXP, CONF, w);
     if CONF.seekForISI
-        [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w);
+        useSegFirst = Shuffle([0 1]);
+        if useSegFirst(1)
+            fprintf('System will First Run SegISISeeker...\n');
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, true, true);
+            fprintf('System will First Run IntISISeeker...\n');
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, false, false);
+        else
+            fprintf('System will First Run IntISISeeker...\n');
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, false, true);
+            fprintf('System will First Run SegISISeeker...\n');
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, true, false);
+        end
     else
         [SCR, EXP] = runNumSeeker(SCR, EXP, CONF, w);
     end
@@ -15,7 +27,6 @@ catch exception
 end
 
 closeScreen(w);
-EXP = computeBanchMarks(EXP, SCR);
 
 function [SCR, EXP] = initApplication(CONF)
     if CONF.debug
@@ -48,10 +59,4 @@ function closeScreen(w)
     Screen('Close',w); 
     Screen('CloseAll'); 
     ShowCursor;
-end
-
-function EXP = computeBanchMarks(EXP, SCR)
-    EXP.repeatReal = (EXP.totalTime + EXP.isi) / (EXP.duration1 + EXP.isi + EXP.duration2 + EXP.isi);
-    EXP.missFrame = ((EXP.duration1 + EXP.isi + EXP.duration2)* EXP.repeat + ...
-        (EXP.repeat - 1 )* EXP.isi - EXP.totalTime) / SCR.frameDuration;
 end

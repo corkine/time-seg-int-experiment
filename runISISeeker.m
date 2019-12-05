@@ -1,79 +1,110 @@
-function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w)
-	
-	vbl_slack = SCR.vblSlack;
-	t_gray = MakeTexture(w, 'assert/gray.jpg');
-	
-	pictures = cell(CONF.repeat,3);
-	for i = 1: length(EXP.data)
-		commonFile = sprintf("sti_%d_%d_%d_", CONF.targetNumber,CONF.cheeseRow,i);
-		common = fullfile(CONF.picFolder, commonFile);
-		pictures{i,1} = char(common + "head.png");
-		pictures{i,2} = char(common + "tail.png");
-		pictures{i,3} = char(common + "fusion.png");
-	end
-	EXP.pictures = pictures;
+function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, isSeg, isFirst)
+% RUNISISEEKER 寻找最佳 ISI 的实验 Trial 序列，传入参数 w 为 Window PTR，
+% isSeg 表明当前 Seeker 是否是寻找 Seg 的（或者是寻找 Int 的）。isFirst 表明
+% 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
 
-	textures = cell(CONF.repeat,2);
-	for i = 1 : length(EXP.data)
-		pic1 = pictures{i, 1};
-		textures{i,1} = MakeTexture(w, char(pic1));
-		pic2 = pictures{i, 2};
-		textures{i,2} = MakeTexture(w, char(pic2));
-	end
-    
-    Flashcards_Repetition_K = 15;                 
-    % K Repetition of a serial including: (Flashcard 1 + ISI + Flashcard 2); There is an ISI between any Repetition (totally K-1 ISIs) 
-    Flashcard_1_Duration = SCR.frameDuration * 1;
-    Flashcard_2_Duration = Flashcard_1_Duration;
-    ISI = SCR.frameDuration * 10;
-    
-    EXP = initExperiment(EXP, Flashcards_Repetition_K, Flashcard_1_Duration, Flashcard_2_Duration, ISI);
-    % when ISI = 1,  the integration effect is best, but the segregation is difficult
-    % when ISI = 10, the segregation effect is best, but the integration is difficult
-    
-    Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
-    
-    t01_onset=GetSecs;
-	
-	K = 1;
-    while (K - 1 < Flashcards_Repetition_K)
-        %[x,y,bdown]=GetMouse; % ~any(bdown) & 
-    
-        % 01: draw a serial including: Flashcards_Repetition_K*(Flashcard_1_Duration + ISI + Flashcard_2_Duration) + (Flashcards_Repetition_K - 1)*ISI
-		t01 = textures{K, 1};
-		t02 = textures{K, 2};
+    % 准备图片等实验材料，设置 trial
+    [EXP, trialsCount, textures] = prepareMaterial(CONF, w, isSeg);
 
-        Screen('DrawTexture',w,t01,[],[]);        
-        t01_onset_real = Screen('Flip', w, t01_onset - vbl_slack);   
-        t01_offset = t01_onset_real + Flashcard_1_Duration;
-    
-        Screen('DrawTexture',w,t_gray,[],[]); 
-        t01_offset_real = Screen('Flip', w, t01_offset - vbl_slack); 
-        t02_onset = t01_offset_real + ISI;
-    
-        Screen('DrawTexture',w,t02,[],[]);        
-        t02_onset_real=Screen('Flip', w, t02_onset - vbl_slack);   
-        t02_offset = t02_onset_real + Flashcard_2_Duration;
-    
-        Screen('DrawTexture',w,t_gray,[],[]); 
-        t02_offset_real=Screen('Flip', w, t02_offset - vbl_slack); 
-        t01_onset = t02_offset_real + ISI;
-        
-        if K==1, Stimuli_onset = t01_onset_real; end 
-        K=K+1;
+    % 准备一些可复用的变量和 PTB 材料
+    vblSlack = SCR.vblSlack;
+	t_gray = MakeTexture(w, CONF.GRAY_IMAGE);
+    duration = CONF.stimulateDuration;
+    if isSeg
+        trialMark = 'SEG';
+    else
+        trialMark = 'INT';
     end
-    
-    EXP.totalTime = t02_offset_real - Stimuli_onset;
-end
+    Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
 
-function EXP = initExperiment(EXP, repeat, duration1, duration2, isi)
-    EXP.repeat = repeat;
-    EXP.duration1 = duration1;
-    EXP.duration2 = duration2;
-    EXP.isi = isi;
+    % 总的指导语
+
+    % 开始循环呈现 trial
+    lastOffSet = GetSecs;	
+	K = 1;
+    while (K - 1 < trialsCount)
+
+        thisTrialISI = EXP.isiWithRepeat(K);
+
+        fprintf('Trial[%s] - %d with ISI %4.0f ms and Image %s\n', ...
+                trialMark, K, thisTrialISI * 1000, EXP.pictures{K, 3});
+        
+        t01 = textures{K, 1};
+        t02 = textures{K, 2};
+
+        crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, ...
+                                    CONF.crossSize, CONF.crossDuration);
+
+        t1OffSet = drawImage(w, crossOffSet, vblSlack, t01, duration);
+        waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, thisTrialISI);
+        lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
+
+        % TODO 添加被试选择和数据收集
+        K = K + 1;
+    end
 end
 
 function t = MakeTexture(w, pictureName)
     img = imread(pictureName);
     t = Screen('MakeTexture',w,img);  
+end
+
+function [EXP, trialsCount, textures] = prepareMaterial(CONF, w, isSeg)
+    % 从 pics 文件夹加载图片，并且随机化，创建纹理，同时随机化 ISI，分配给 trials，
+    % 将结果保存在 EXP.pictures, isiWithRepeat 中，返回需要下一步使用的 textures 
+    % 和 trialsCount，以及更改后的 EXP
+
+    % 计时标记
+    time = join(string(clock),'_');
+    if isSeg
+        if CONF.debug, fprintf('Use Debug Mode with Seg...\n'); end
+        EXP.segStartTime = time;
+    else
+        if CONF.debug, fprintf('Use Debug Mode with Int...\n'); end
+        EXP.intStartTime = time;
+    end
+
+    % 获取图片
+    trialsCount = length(CONF.isiNeed) * CONF.repeatTrial;
+    pictures = cell(trialsCount,3);
+    for i = 1: trialsCount
+        commonFile = sprintf("sti_%d_%d_%d_", 1, CONF.cheeseRow, i);
+        common = fullfile(CONF.picFolder, commonFile);
+        pictures{i,1} = char(common + "head.png");
+        pictures{i,2} = char(common + "tail.png");
+        pictures{i,3} = char(common + "fusion.png");
+    end
+
+    % 分配 ISI 到每张图片，并且随机化
+    isis = repmat(CONF.isiNeed, 1, CONF.repeatTrial)';
+    isiWithRepeat = Shuffle(isis);
+
+    % 随机化图片顺序（图片随机，本质上没有必要）
+    pictures = Shuffle(pictures,2);
+
+    % 将图片转换成为纹理
+    textures = cell(trialsCount,2);
+    for i = 1 : trialsCount
+        pic1 = pictures{i, 1};
+        textures{i,1} = MakeTexture(w, char(pic1));
+        pic2 = pictures{i, 2};
+        textures{i,2} = MakeTexture(w, char(pic2));
+    end
+
+    EXP.pictures = pictures;
+    EXP.isiWithRepeat = isiWithRepeat;
+end
+
+function this_offset = drawFocusCross(w, last_offset, vblSlack, fontSize, showTime)
+    Screen('TextStyle', w, 0);
+    Screen('TextSize', w, fontSize);
+    DrawFormattedText(w, '+', 'center','center',[255 0 0]);
+    this_onset_real = Screen('Flip', w, last_offset - vblSlack);
+    this_offset = this_onset_real + showTime;
+end
+
+function this_offset = drawImage(w, last_offset, vblSlack, texture, showTime)
+    Screen('DrawTexture',w,texture,[],[]);        
+    this_onset_real = Screen('Flip', w, last_offset - vblSlack);   
+    this_offset = this_onset_real + showTime;
 end
