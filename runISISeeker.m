@@ -2,6 +2,9 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, isSeg)
 % RUNISISEEKER 寻找最佳 ISI 的实验 Trial 序列，传入参数 w 为 Window PTR，
 % isSeg 表明当前 Seeker 是否是寻找 Seg 的（或者是寻找 Int 的）。isFirst 表明
 % 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
+%
+%   [ADD] EXP.segStartTime, EXP.intStartTime
+%   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat
 
     % 准备一些可复用的变量和 PTB 材料
     w = SCR.window;
@@ -15,7 +18,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, isSeg)
     end
 
     % 准备图片等实验材料，设置 trial
-    [EXP, trialsCount, textures] = prepareMaterial(CONF, w, isSeg);
+    [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w, isSeg);
 
     % 开始循环呈现 trial
     Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
@@ -39,9 +42,12 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, isSeg)
         waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, thisTrialISI);
         lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 
-        % TODO 添加被试选择和数据收集
+        % TODO 添加被试选择
         K = K + 1;
     end
+
+    % 添加数据收集
+
 end
 
 function t = MakeTexture(w, pictureName)
@@ -49,10 +55,12 @@ function t = MakeTexture(w, pictureName)
     t = Screen('MakeTexture',w,img);  
 end
 
-function [EXP, trialsCount, textures] = prepareMaterial(CONF, w, isSeg)
+function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w, isSeg)
     % 从 pics 文件夹加载图片，并且随机化，创建纹理，同时随机化 ISI，分配给 trials，
     % 将结果保存在 EXP.pictures, isiWithRepeat 中，返回需要下一步使用的 textures 
     % 和 trialsCount，以及更改后的 EXP
+    %
+    %   [ADD] EXP.pictures, EXP.isiWithRepeat
 
     % 计时标记
     time = join(string(clock),'_');

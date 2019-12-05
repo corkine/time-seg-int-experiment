@@ -1,4 +1,15 @@
-本脚本用来
+% 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语，变量更改如下所示：
+% dialogLoad
+%   [ADD] CONF.seekForISI, name, gender, note, startTime
+% initApplication
+%   [ADD] EXP.data, SCR.debug, screenSize
+% initScreen
+%   [ADD] SCR.window, windowRect, frameDuration, vblSlack
+% runISISeeker
+%   [ADD] EXP.segStartTime, EXP.intStartTime
+%   prepareMaterial 
+%       [ADD] EXP.pictures, EXP.isiWithRepeat
+
 CONF = configLoad();
 CONF = dialogLoad(CONF);
 [SCR, EXP] = initApplication(CONF); 
@@ -53,6 +64,7 @@ end
 closeScreen(w);
 
 function [SCR, EXP] = initApplication(CONF)
+    % [ADD] EXP.data, SCR.debug, screenSize
     if CONF.debug
         Screen('Preference', 'SkipSyncTests', 1);
         SCR.debug = CONF.debug;
@@ -70,6 +82,7 @@ function [SCR, EXP] = initApplication(CONF)
 end
 
 function SCR = initScreen(SCR)
+    % [ADD] SCR.window, windowRect, frameDuration, vblSlack
     %初始化 Screen
     [w,rect]= Screen('OpenWindow',0,[128 128 128],SCR.screenSize); 
     SCR.window = w;
