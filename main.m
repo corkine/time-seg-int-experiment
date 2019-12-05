@@ -4,7 +4,11 @@ CONF = dialogLoad(CONF);
 [w, rect, SCR] = initScreen(SCR);
 
 try
-    [SCR, EXP] = runExp(SCR, EXP, CONF, w);
+    if CONF.seekForISI
+        [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w);
+    else
+        [SCR, EXP] = runNumSeeker(SCR, EXP, CONF, w);
+    end
 catch exception
     disp("Run PTB Error: " + string(exception.message) + ...
     ", For more info, check exception variable");

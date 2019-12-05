@@ -1,29 +1,22 @@
 function CONF = dialogLoad(CONF)
-%DIALOGLOAD 从对话框中加载配置，结果写入 CONF struct 中。
-%CONF 可不提供，如果提供，务必包含 debug 字段，布尔值。
-%   如果是 debug 模式，则自动复写默认值，反之，如果取消，则返回其本身（如果没有参数。则返回空 struct），
-%   如果确定则返回对话框中值（包括默认值）。
+%DIALOGLOAD 从对话框中加载配置，结果写入 CONF struct 中。参见 CONFIGLOAD。
+%CONF struct should contains debug, seekForISI, name, gender, note fields。
+%   如果是 debug 模式，则返回，反之，如果取消，则返回，如果确定则返回设定后的值。
 
-prompt = {'seek For prefISI? 0 For prefNumber? 1',...
+assert(nargin > 0, ...
+'Should Input CONF struct contains debug, seekForISI, name, gender, note fields');
+
+prompt = {'seek For prefISI? 1 For prefNumber? 0',...
 'participartName','participartGender(FeMale 0, Male 1)','participartNote'};
-default_ans = {'0','DefaultName','0','DefaltNote'};
+default_ans = {num2str(CONF.seekForISI), CONF.name, num2str(CONF.gender), CONF.note};
 title = 'Config Dialog';
 
-if nargin > 0 && CONF.debug
-    CONF.seekForISI = 0;
-    CONF.name = 'DebugName';
-    CONF.gender = 0;
-    CONF.note = 'DebugNote'; 
+if CONF.debug
     return;
 else
     anst = inputdlg(prompt, title, 1, default_ans);
     if isempty(anst)
-        if nargin > 0
-            return;
-        else
-            CONF = struct;
-            return;
-        end
+        return;
     else
         CONF.seekForISI = str2double(anst{1,1});
         CONF.name = anst{2,1};

@@ -1,4 +1,4 @@
-function [SCR, EXP] = runExp(SCR, EXP, CONF, w)
+function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w)
 	
 	vbl_slack = SCR.vblSlack;
 	t_gray = MakeTexture(w, 'assert/gray.jpg');
