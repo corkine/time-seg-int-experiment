@@ -1,3 +1,3 @@
-function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF, w)
+function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 
 end

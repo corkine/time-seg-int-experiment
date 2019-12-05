@@ -1,25 +1,49 @@
+本脚本用来
 CONF = configLoad();
 CONF = dialogLoad(CONF);
 [SCR, EXP] = initApplication(CONF); 
-[w, rect, SCR] = initScreen(SCR);
+SCR = initScreen(SCR);
 
 try
     % [SCR, EXP] = runTest(SCR, EXP, CONF, w);
     if CONF.seekForISI
         useSegFirst = Shuffle([0 1]);
         if useSegFirst(1)
+            % 总指导语
+            showIntro(SCR, CONF.ISI_INTRO, 0.5);
+            % Seg 指导语
             fprintf('System will First Run SegISISeeker...\n');
-            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, true, true);
-            fprintf('System will First Run IntISISeeker...\n');
-            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, false, false);
+            showIntro(SCR, CONF.ISI_INTRO_S);
+            % Seg 实验
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, true);
+            % 中间休息
+            fprintf('Systen will sleep For %d secs', CONF.participartRelex);
+            showSleep(SCR, CONF.participartRelex, 0.5);
+            % Int 指导语
+            fprintf('System will Run IntISISeeker...\n');
+            showIntro(SCR, CONF.ISI_INTRO_I);
+            % Int 实验
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, false);
         else
+            % 总指导语
+            showIntro(SCR, CONF.ISI_INTRO, 0.5);
+            % Int 指导语
             fprintf('System will First Run IntISISeeker...\n');
-            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, false, true);
-            fprintf('System will First Run SegISISeeker...\n');
-            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, true, false);
+            showIntro(SCR, CONF.ISI_INTRO_I);
+            % Int 实验
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, false);
+            % 中间休息
+            fprintf('Systen will sleep For %d secs', CONF.participartRelex);
+            showSleep(SCR, CONF.participartRelex, 0.5);
+            % Seg 指导语
+            fprintf('System will Run SegISISeeker...\n');
+            showIntro(SCR, CONF.ISI_INTRO_S);
+            % Seg 实验
+            [SCR, EXP] = runISISeeker(SCR, EXP, CONF, true);
         end
     else
-        [SCR, EXP] = runNumSeeker(SCR, EXP, CONF, w);
+        % TODO 未实现
+        [SCR, EXP] = runNumSeeker(SCR, EXP, CONF);
     end
 catch exception
     disp("Run PTB Error: " + string(exception.message) + ...
@@ -45,9 +69,11 @@ function [SCR, EXP] = initApplication(CONF)
     end
 end
 
-function [w,rect,SCR] = initScreen(SCR)
+function SCR = initScreen(SCR)
     %初始化 Screen
     [w,rect]= Screen('OpenWindow',0,[128 128 128],SCR.screenSize); 
+    SCR.window = w;
+    SCR.windowRect = rect;
     SCR.frameDuration = Screen('GetFlipInterval',w); 
     SCR.vblSlack = SCR.frameDuration / 2;   
     HideCursor;
@@ -59,4 +85,45 @@ function closeScreen(w)
     Screen('Close',w); 
     Screen('CloseAll'); 
     ShowCursor;
+end
+
+function showIntro(SCR, introImage, withDelay)
+    w = SCR.window;
+    fprintf('Showing Intro %s now...', introImage);
+    img = imread(introImage);
+    t = Screen('MakeTexture',w,img); 
+    Screen('DrawTexture',w,t,[],[]); 
+    Screen('Flip', w);
+    space = KbName('space');
+    while true
+        [~, ~, keycode] = KbCheck();
+        if keycode(space), break; end
+        WaitSecs(0.1);
+    end
+    Screen('Flip', w);
+    if nargin == 3
+        WaitSecs(withDelay);
+    end
+end
+
+function showSleep(SCR, sleepMinSecs, withDelay)
+    w = SCR.window;
+    fprintf('Sleeping now...');
+    text = sprintf('Please Relex for min %d secs, Counting...', sleepMinSecs);
+    DrawFormattedText(w, text, 'center', 'center');
+    Screen('Flip',w);
+    WaitSecs(sleepMinSecs);
+    Screen('Flip',w);
+    space = KbName('space');
+    DrawFormattedText(w, 'Press Space to Continue', 'center', 'center');
+    Screen('Flip',w);
+    while true
+        [~, ~, keycode] = KbCheck();
+        if keycode(space), break; end
+        WaitSecs(0.1);
+    end
+    Screen('Flip', w);
+    if nargin == 3
+        WaitSecs(withDelay);
+    end
 end

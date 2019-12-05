@@ -47,11 +47,13 @@ if CONF.debug
 	CONF.numberNeed = [2,6];
 	CONF.learnTakeIsiNeed = [0];
 	CONF.repeatTrial = 2;
+	CONF.participartRelex = 1;
 else
 	CONF.isiNeed = [0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5];
 	CONF.numberNeed = [2,3,4,5,6];
 	CONF.learnTakeIsiNeed = [0, 60];
 	CONF.repeatTrial = 20;
+	CONF.participartRelex = 60;
 end
 
 

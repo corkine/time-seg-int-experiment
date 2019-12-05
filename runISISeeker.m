@@ -1,12 +1,10 @@
-function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, isSeg, isFirst)
+function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, isSeg)
 % RUNISISEEKER 寻找最佳 ISI 的实验 Trial 序列，传入参数 w 为 Window PTR，
 % isSeg 表明当前 Seeker 是否是寻找 Seg 的（或者是寻找 Int 的）。isFirst 表明
 % 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
 
-    % 准备图片等实验材料，设置 trial
-    [EXP, trialsCount, textures] = prepareMaterial(CONF, w, isSeg);
-
     % 准备一些可复用的变量和 PTB 材料
+    w = SCR.window;
     vblSlack = SCR.vblSlack;
 	t_gray = MakeTexture(w, CONF.GRAY_IMAGE);
     duration = CONF.stimulateDuration;
@@ -15,11 +13,13 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF, w, isSeg, isFirst)
     else
         trialMark = 'INT';
     end
-    Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
 
-    % 总的指导语
+    % 准备图片等实验材料，设置 trial
+    [EXP, trialsCount, textures] = prepareMaterial(CONF, w, isSeg);
 
     % 开始循环呈现 trial
+    Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
+    
     lastOffSet = GetSecs;	
 	K = 1;
     while (K - 1 < trialsCount)
