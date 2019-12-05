@@ -16,8 +16,8 @@ CONF.debugDataPath = fullfile(CONF.picFolder, "debug_data.mat");
 CONF.stimulateJarPath = fullfile(CONF.picFolder, "Psy4J.jar");
 CONF.targetNumber = 6;
 CONF.cheeseRow = 8;
+CONF.cheeseGridWidth = 30;
 
-%% 以下信息从 dialogLoad 中覆盖
 CONF.seekForISI = 1;
 CONF.name = 'DebugName';
 CONF.gender = 0;
@@ -41,6 +41,7 @@ CONF.crossSize = 50;
 CONF.crossDuration = 1;
 CONF.stimulateDuration = 0.03;
 CONF.maxAnswerDelaySeconds = 2;
+CONF.feedbackSecs = 2;
 
 if CONF.debug
 	CONF.isiNeed = [0, 0.02, 0.5];
