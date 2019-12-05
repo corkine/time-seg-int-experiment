@@ -4,7 +4,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 % 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
 %
 %   [ADD] EXP.segStartTime, EXP.intStartTime
-%   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers
+%   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime
 
     % 准备一些可复用的变量和 PTB 材料
     w = SCR.window;
@@ -62,10 +62,9 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
                                     CONF.cheeseGridWidth,...
                                     rightNum, needFeedback, CONF.feedbackSecs);
         EXP.answers(K) = isRight;
+        EXP.actionTime(K) = GetSecs - lastOffSet;
         K = K + 1;
     end
-
-    % 添加数据收集
 
 end
 
@@ -79,7 +78,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 将结果保存在 EXP.pictures, isiWithRepeat 中，返回需要下一步使用的 textures 
     % 和 trialsCount，以及更改后的 EXP
     %
-    %   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers
+    %   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime
 
     % 获取 ISI
     if EXP.isLearn
@@ -129,6 +128,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     EXP.pictures = pictures;
     EXP.isiWithRepeat = isiWithRepeat;
     EXP.answers = ones(trialsCount,1) * -1;
+    EXP.actionTime = ones(trialsCount,1) * -1;
 end
 
 function this_offset = drawFocusCross(w, last_offset, vblSlack, fontSize, showTime)
