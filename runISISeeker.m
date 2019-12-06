@@ -45,9 +45,11 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 
         crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, ...
                                     CONF.crossSize, CONF.crossDuration);
-
+        fprintf('%-20s Show First Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
         t1OffSet = drawImage(w, crossOffSet, vblSlack, t01, duration);
+        fprintf('%-20s Show ISI in %1.0f ms\n','[SEEKER][SHOW]',thisTrialISI * 1000);
         waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, thisTrialISI);
+        fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
         lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 
         currentSti = EXP.data(K,:); %64列1行
@@ -58,7 +60,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
             findAns = find(currentSti == 2);
             rightNum = findAns(1);
         end
-        [~, isRight] = waitForRectChoose(w, CONF.cheeseRow, ...
+        [~, isRight] = waitForRectChoose(w, lastOffSet, vblSlack, CONF.cheeseRow, ...
                                     CONF.cheeseGridWidth,...
                                     rightNum, needFeedback, CONF.feedbackSecs);
         EXP.answers(K) = isRight;
@@ -83,8 +85,10 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 获取 ISI
     if EXP.isLearn
         isiNeed = CONF.learnTakeIsiNeed;
+        repeatTrial = CONF.learnRepeatTrial;
     else
         isiNeed = CONF.isiNeed;
+        repeatTrial = CONF.repeatTrial;
     end
 
     % 计时标记
@@ -98,7 +102,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     end
 
     % 获取图片
-    trialsCount = length(isiNeed) * CONF.repeatTrial;
+    trialsCount = length(isiNeed) * repeatTrial;
     pictures = cell(trialsCount,3);
     for i = 1: trialsCount
         commonFile = sprintf("sti_%d_%d_%d_", 1, CONF.cheeseRow, i);
@@ -109,7 +113,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     end
 
     % 分配 ISI 到每张图片，并且随机化
-    isis = repmat(isiNeed, 1, CONF.repeatTrial)';
+    isis = repmat(isiNeed, 1, repeatTrial)';
     isiWithRepeat = Shuffle(isis);
 
     % 不能随机化图片，否则丧失了和 EXP.data 对应的能力
@@ -145,7 +149,8 @@ function this_offset = drawImage(w, last_offset, vblSlack, texture, showTime)
     this_offset = this_onset_real + showTime;
 end
 
-function [rowNumber, isRight] = waitForRectChoose(w, row, width, rightAnswer, needFeedback, feedBackDelaySecs)
+function [rowNumber, isRight] = waitForRectChoose(w, last_offset, vblSlack, row, width, rightAnswer, needFeedback, feedBackDelaySecs)
+    Screen('Flip', w, last_offset - vblSlack);
     ShowCursor;
     cellRects = ArrangeRects(row * row, [0 0 width width],[0 0 width * row, width * row]);
     [wx, wy] = WindowCenter(w);

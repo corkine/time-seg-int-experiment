@@ -87,7 +87,15 @@ function [SCR, EXP] = initApplication(CONF)
         SCR.debug = false;
         SCR.screenSize = [];
         disp('Call JVM to generate Stimulate')
-        data = initPics(CONF.picFolder, CONF.stimulateJarPath, SCR.debug, 6, 100);
+        if CONF.seekForISI
+            target = 1;
+        else
+            target = CONF.numberNeed;
+        end
+        % TODO：删除此部分，手动调用函数完成数据获取，这里从指定文件夹 mat 文件获取信息
+        % 因为每次学习/正式/Seg/Int 都使用相同的信息，因此 need 为一次最长的即可
+        need = CONF.repeatTrial * length(CONF.isiNeed);
+        data = initPics(CONF.picFolder, CONF.stimulateJarFile, SCR.debug, target, int32(need));
         EXP.data = data;
     end
     EXP.isSeg = false;
@@ -98,7 +106,12 @@ function SCR = initScreen(SCR)
     % 初始化 Screen 和 PTB 句柄
     % [ADD] SCR.window, windowRect, frameDuration, vblSlack
     %初始化 Screen
-    [w,rect]= Screen('OpenWindow',0,[128 128 128],SCR.screenSize); 
+    if isempty(SCR.screenSize)
+        Screen('Preference', 'SkipSyncTests', 1);
+        [w,rect]= Screen('OpenWindow',0,[128 128 128]); 
+    else
+        [w,rect]= Screen('OpenWindow',0,[128 128 128],SCR.screenSize); 
+    end
     SCR.window = w;
     SCR.windowRect = rect;
     SCR.frameDuration = Screen('GetFlipInterval',w); 

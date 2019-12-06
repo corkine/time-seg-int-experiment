@@ -12,15 +12,20 @@ function data = initPics(picPath, jarPath, debugMode, target, count)
 %	一个 MATLAB 实例中只能调用一次，重复调用无法通过启动前检测。重启 MATLAB 即可调用此方法。
 %
 % 	author: Corkine Ma @ 2019-12-04
+
+% TODO: 和程序解耦，单独调用函数生成图片，并且支持批量生成图片，每个被试所需图片放置在一个文件夹中，
+% 且将信息和图片以编号命名放置在一起 23334.mat xxxx.png 合起来放在 23334 文件夹中，然后使用时指定文件夹
+% 注意，对 ISISeeker 和 NumSeeker 生成单独的 xxxxx.mat 信息
+
 switch nargin
 	case 0
 		picPath = "pics";
-		jarPath = fullfile(picPath,"Psy4J.jar");
+		jarPath = "Psy4J.jar";
 		debugMode = true;
 		target = 6;
 		count = 100;
 	case 1
-		jarPath = fullfile(picPath,"Psy4J.jar");
+		jarPath = "Psy4J.jar";
 		debugMode = true;
 		target = 6;
 		count = 100;

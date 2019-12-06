@@ -4,7 +4,7 @@ function CONF = configLoad()
 
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
-CONF.debug = true;
+CONF.debug = false;
 if CONF.debug 
 	CONF.screenSize = [10,10,800,600];
 else
@@ -13,7 +13,7 @@ end
 
 CONF.picFolder = "pics";
 CONF.debugDataPath = fullfile(CONF.picFolder, "debug_data.mat");
-CONF.stimulateJarPath = fullfile(CONF.picFolder, "Psy4J.jar");
+CONF.stimulateJarFile = "Psy4J.jar";
 CONF.targetNumber = 6;
 CONF.cheeseRow = 8;
 CONF.cheeseGridWidth = 30;
@@ -39,21 +39,23 @@ CONF.GRAY_IMAGE = fullfile('assert','gray.jpg');
 
 CONF.crossSize = 50;
 CONF.crossDuration = 1;
-CONF.stimulateDuration = 0.03;
+CONF.stimulateDuration = 0.05;
 CONF.maxAnswerDelaySeconds = 2;
-CONF.feedbackSecs = 2;
+CONF.feedbackSecs = 0.5;
 
 if CONF.debug
 	CONF.isiNeed = [0, 0.02, 0.5];
 	CONF.numberNeed = [2,6];
 	CONF.learnTakeIsiNeed = [0];
 	CONF.repeatTrial = 2;
+	CONF.learnRepeatTrial = 2;
 	CONF.participartRelex = 1;
 else
 	CONF.isiNeed = [0, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5];
 	CONF.numberNeed = [2,3,4,5,6];
-	CONF.learnTakeIsiNeed = [0, 60];
+	CONF.learnTakeIsiNeed = [0.05];
 	CONF.repeatTrial = 20;
+	CONF.learnRepeatTrial = 3;
 	CONF.participartRelex = 60;
 end
 
