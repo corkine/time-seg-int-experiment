@@ -4,7 +4,7 @@ function CONF = configLoad()
 
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
-CONF.debug = true;
+CONF.debug = false;
 if CONF.debug 
 	CONF.screenSize = [10,10,800,600];
 else
@@ -15,7 +15,7 @@ CONF.picFolder = "pics";
 CONF.stimulateJarFile = "Psy4J.jar";
 CONF.targetNumber = 6;
 CONF.cheeseRow = 8;
-CONF.cheeseGridWidth = 30;
+CONF.cheeseGridWidth = 60;
 
 CONF.seekForISI = 1;
 CONF.name = 'DebugName';
