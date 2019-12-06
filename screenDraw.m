@@ -35,6 +35,6 @@ end
 Screen('Flip',w);
 
 [~, rowNumber] = ismember(choosedRect, cellRects2, 'rows');
-rowNumber
+rowNumber;
 
 
