@@ -28,28 +28,28 @@ try
             % 总指导语
             showIntro(SCR, CONF.ISI_INTRO, 0.5);
             % Seg - 练习
-            EXP_S_EX = initCondition(SCR, EXP, CONF, true, true);
+            EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
             % Seg - 正式
             EXP_S = initCondition(SCR, EXP, CONF, true, false);
             % 中间休息
             fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]',CONF.participartRelex);
             showSleep(SCR, CONF.participartRelex, 0.5);
             % Int - 练习
-            EXP_I_EX = initCondition(SCR, EXP, CONF, false, true);
+            EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
             % Int - 正式
             EXP_I = initCondition(SCR, EXP, CONF, false, false);
         else
             % 总指导语
             showIntro(SCR, CONF.ISI_INTRO, 0.5);
             % Int - 练习
-            EXP_I_EX = initCondition(SCR, EXP, CONF, false, true);
+            EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
             % Int - 正式
             EXP_I = initCondition(SCR, EXP, CONF, false, false);
             % 中间休息
             fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]', CONF.participartRelex);
             showSleep(SCR, CONF.participartRelex, 0.5);
             % Seg - 练习
-            EXP_S_EX = initCondition(SCR, EXP, CONF, true, true);
+            EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
             % Seg - 正式
             EXP_S = initCondition(SCR, EXP, CONF, true, false);
         end
@@ -160,6 +160,47 @@ function showSleep(SCR, sleepMinSecs, withDelay)
     end
 end
 
+function showAcc(SCR, CONF, currentP, withDelay)
+    % 显示正确率信息
+    w = SCR.window;
+    Screen('Flip',w);
+    needP = CONF.minCurrent;
+    accText = sprintf('Your Accuracy is %2.2f%% < %2.2f%%\nPress the space bar to try again', ...
+                    currentP * 100, needP * 100);
+    DrawFormattedText(w, char(accText), 'center', 'center', [0 0 0]); 
+    Screen('Flip',w);
+    space = KbName('space');
+    while true
+        [~, ~, keycode] = KbCheck();
+        if keycode(space), break; end
+        WaitSecs(0.1);
+    end
+    Screen('Flip', w);
+    if nargin == 4
+        WaitSecs(withDelay);
+    end
+end
+
+function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
+    % 执行 initCondition，根据正确率判断，如果不通过，则无限重试。
+    if CONF.useUnlimitLearn
+        while true
+            EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn);
+            a = EXP_SPEC.answers
+            acc = length(a(a(:,1) == 1)) / length(a);
+            if acc >= CONF.minCurrent
+                fprintf('%-20s ACC is %2.2f...\n', '[MAIN][SEG][LEARN]', acc);
+                break;
+            else
+                fprintf('%-20s Retry Learn again...\n', '[MAIN][SEG][LEARN]');
+                showAcc(SCR, CONF, acc, 0.5);
+            end
+        end
+    else
+        EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn);
+    end
+end
+
 function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     % 初始化指定的条件，调用 runISISeeker 显示刺激，收集数据
     if isLearn
@@ -188,3 +229,4 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     EXP_SPEC.isLearn = isLearn;
     [~, EXP_SPEC] = runISISeeker(SCR, EXP_SPEC, CONF);
 end
+

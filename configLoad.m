@@ -42,18 +42,23 @@ CONF.crossDuration = 1;
 CONF.stimulateDuration = 0.033;
 CONF.feedbackSecs = 0.5;
 
+
 if CONF.debug
 	CONF.isiNeed = [0, 0.02, 0.06];
 	CONF.learnTakeIsiNeed = [0];
 	CONF.repeatTrial = 2;
 	CONF.learnRepeatTrial = 2;
 	CONF.participartRelex = 1;
+	CONF.useUnlimitLearn = true;
+	CONF.minCurrent = 0.5;
 else
 	CONF.isiNeed = [0, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16];
 	CONF.learnTakeIsiNeed = [0.04];
 	CONF.repeatTrial = 20;
 	CONF.learnRepeatTrial = 10;
 	CONF.participartRelex = 60;
+	CONF.useUnlimitLearn = true;
+	CONF.minCurrent = 0.9;
 end
 
 
