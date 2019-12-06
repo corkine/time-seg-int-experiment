@@ -13,6 +13,8 @@ function [folderName, data] = initPics()
 % 且将信息和图片以编号命名放置在一起 23334.mat xxxx.png 合起来放在 23334 文件夹中，然后使用时指定文件夹
 % 注意，对 ISISeeker 和 NumSeeker 生成单独的 xxxxx.mat 信息
 
+fprintf('%-20s Loading Config From configLoad()\n','[CONFIG]');
+CONF = configLoad();
 debugMode = CONF.debug;
 target = CONF.targetNumber;
 row = CONF.cheeseRow;
@@ -26,8 +28,11 @@ try
 	javaaddpath(jarPath);
 	h = com.mazhangjing.time.MATLABHelper;
 	data = h.generatePicturesWithArgsInRandomFolder(...
-			debugMode, target, row, wid, 'sti',count,'black','white');
-	folderName = javaMethod('folder','com.mazhangjing.time.MATLABHelper');
+			debugMode, target, row, wid, count, 'sti', 'black','white');
+	folderString = javaMethod('folder','com.mazhangjing.time.MATLABHelper');
+	folderName = char(folderString);
+	fprintf('%-20s Saved Data to data.mat at folder %s\n','[CONFIG]', folderName);
+	save(fullfile(folderName,'data.mat'),'data');
 catch exception
 	disp('出现错误' + string(exception.message));
 	data = [];

@@ -7,11 +7,12 @@ assert(nargin > 0, ...
 'Should Input CONF struct contains debug, seekForISI, name, gender, note fields');
 
 prompt = {'seek For prefISI? 1 For prefNumber? 0',...
-'participartName','participartGender(FeMale 0, Male 1)','participartNote'};
-default_ans = {num2str(CONF.seekForISI), CONF.name, num2str(CONF.gender), CONF.note};
+'participartName','participartGender(FeMale 0, Male 1)','participartNote','participartPicId'};
+default_ans = {num2str(CONF.seekForISI), CONF.name, num2str(CONF.gender), CONF.note, CONF.picID};
 title = 'Config Dialog';
 
 if CONF.debug
+    CONF.startTime = join(string(clock),'_');
     return;
 else
     anst = inputdlg(prompt, title, 1, default_ans);
@@ -23,6 +24,7 @@ else
         CONF.gender = str2double(anst{3,1});
         CONF.note = anst{4,1};
         CONF.startTime = join(string(clock),'_');
+        CONF.picID = anst{5,1};
     end
 end
 end

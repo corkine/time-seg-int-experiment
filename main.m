@@ -9,7 +9,7 @@
 % runISISeeker
 %   [ADD] EXP.segStartTime, EXP.intStartTime
 %   prepareMaterial 
-%       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime
+%       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData
 %
 %  请勿直接调用 Psy4J.jar 生成图片，通过此函数调用的 Psy4J.jar 会将结果保存到 debug_data.mat 中
 %  以备 debug 模式使用。此数据和图片顺序对应，包含了图片中的点阵关键信息。
@@ -22,7 +22,8 @@ SCR = initScreen(SCR);
 try
     % [SCR, EXP] = runTest(SCR, EXP, CONF, w);
     if CONF.seekForISI
-        useSegFirst = Shuffle([0 1]);
+        % useSegFirst = Shuffle([0 1]);
+        useSegFirst = [1,0];
         if useSegFirst(1) % 随机化 Seg、Int 顺序
             % 总指导语
             showIntro(SCR, CONF.ISI_INTRO, 0.5);
@@ -70,7 +71,7 @@ catch exception
     ", For more info, check exception variable");
 end
 
-closeScreen(w);
+closeScreen(SCR.window);
 
 function [SCR, EXP] = initApplication(CONF)
     % 初始化应用程序，包括应用 DEBUG 模式，设置默认 EXP 值，
@@ -80,24 +81,13 @@ function [SCR, EXP] = initApplication(CONF)
         Screen('Preference', 'SkipSyncTests', 1);
         SCR.debug = CONF.debug;
         SCR.screenSize = CONF.screenSize;
-        disp("From debug_data.mat Load Test-Defined Data for use...");
-        res = load(CONF.debugDataPath);
-        EXP.data = res.data;
     else
         SCR.debug = false;
         SCR.screenSize = [];
-        disp('Call JVM to generate Stimulate')
-        if CONF.seekForISI
-            target = 1;
-        else
-            target = CONF.numberNeed;
-        end
-        % TODO：删除此部分，手动调用函数完成数据获取，这里从指定文件夹 mat 文件获取信息
-        % 因为每次学习/正式/Seg/Int 都使用相同的信息，因此 need 为一次最长的即可
-        need = CONF.repeatTrial * length(CONF.isiNeed);
-        data = initPics(CONF.picFolder, CONF.stimulateJarFile, SCR.debug, target, int32(need));
-        EXP.data = data;
     end
+    fprintf('%-20s Load Data from %s/%s\n','[MAIN]',CONF.picID, 'data.mat');
+    res = load(fullfile('pics',CONF.picID,'data.mat'));
+    EXP.data = res.data;
     EXP.isSeg = false;
     EXP.isLearn = false;
 end

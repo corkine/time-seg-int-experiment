@@ -14,7 +14,11 @@ configLoad.m 函数提供了一些基本配置逻辑，其被主脚本 main.m �
 
 图片刺激生成较为复杂，因此使用 Scala 写好，打包之后放在 Psy4J.jar 文件中。得益于 Matlab 2018 之后自带的 Java 虚拟机（版本 8），因此可以直接在 MATLAB 中调用 Java 类，传入和接受参数。生成图片的逻辑封装在 com.mazhangjing.time.MATLABHelper 类中，在 MATLAB 中，其封装在 initPics.m 同名函数中。
 
-当非 Debug 模式时（main 从 configLoad 中获取是否 debug 模式），main.m 会调用 initPics.m 打开 JavaFx GUI，生成刺激。GUI 的默认参数可以通过 initPics 参数传入，点击生成即可。注意，因为 MATLAB 窗口本身就是 JavaFx 程序，因此不能在一个 MATLAB 实例中多次打开 JavaFx 实例。所以，当在一个 MATLAB 实例中调用 initPics 后，必须关闭 MATLAB，才能重新调用。
+当非 Debug 模式时（main 从 configLoad 中获取是否 debug 模式），main.m 会调用 pics/xxx/data.mat 文件获取刺激图片和其元数据，生成刺激。
+
+对于每个被试，使用一个 pics/xxx 文件夹，文件夹中包含了图片和元数据 MAT 文件。使用 initPics 函数打开 JavaFx GUI 生成刺激，其会生成随机的 xxx 文件夹，然后将元数据保存在 xxx/data.mat 中，main.m 函数会自动通过 CONF 确定被试文件夹，并且通过读取元数据抓取图片加载刺激。
+
+注意，因为 MATLAB 窗口本身就是 JavaFx 程序，因此不能在一个 MATLAB 实例中多次打开 JavaFx 实例。所以，当在一个 MATLAB 实例中调用 initPics 后，必须关闭 MATLAB，才能重新调用。
 
 ![](http://static2.mazhangjing.com/20191204/ff661f0_WX20191204-181236.png)
 

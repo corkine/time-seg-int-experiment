@@ -4,7 +4,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 % 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
 %
 %   [ADD] EXP.segStartTime, EXP.intStartTime
-%   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime
+%   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime,EXP.usedData
 
     % 准备一些可复用的变量和 PTB 材料
     w = SCR.window;
@@ -52,16 +52,16 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
         fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
         lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 
-        currentSti = EXP.data(K,:); %64列1行
+        currentSti = EXP.usedData(K,:); %66列1行
+        % 因为第一列为数字，第二列为编号，因此从第三列开始，找到的数字应该 - 2 
         if isSeg
             findAns = find(currentSti == 1);
-            rightNum = findAns(1);
+            rightNum = findAns(1) - 2;
         else 
             findAns = find(currentSti == 2);
-            rightNum = findAns(1);
+            rightNum = findAns(1) - 2;
         end
-        [~, isRight] = waitForRectChoose(w, lastOffSet, vblSlack, CONF.cheeseRow, ...
-                                    CONF.cheeseGridWidth,...
+        [~, isRight] = waitForRectChoose(w, lastOffSet, vblSlack, CONF.cheeseRow, CONF.cheeseGridWidth,...
                                     rightNum, needFeedback, CONF.feedbackSecs);
         EXP.answers(K) = isRight;
         EXP.actionTime(K) = GetSecs - lastOffSet;
@@ -80,7 +80,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 将结果保存在 EXP.pictures, isiWithRepeat 中，返回需要下一步使用的 textures 
     % 和 trialsCount，以及更改后的 EXP
     %
-    %   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime
+    %   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime，EXP.usedData
 
     % 获取 ISI
     if EXP.isLearn
@@ -90,7 +90,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
         isiNeed = CONF.isiNeed;
         repeatTrial = CONF.repeatTrial;
     end
-
+ 
     % 计时标记
     time = join(string(clock),'_');
     if EXP.isSeg
@@ -104,9 +104,12 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 获取图片
     trialsCount = length(isiNeed) * repeatTrial;
     pictures = cell(trialsCount,3);
+    data = EXP.data;
+    picIds = data(data(:,1) == -1,2);
     for i = 1: trialsCount
-        commonFile = sprintf("sti_%d_%d_%d_", 1, CONF.cheeseRow, i);
-        common = fullfile(CONF.picFolder, commonFile);
+        picId = picIds(i);
+        commonFile = sprintf("sti_%d_%d_%d_", 1, CONF.cheeseRow, picId);
+        common = fullfile(CONF.picFolder, CONF.picID, commonFile);
         pictures{i,1} = char(common + "head.png");
         pictures{i,2} = char(common + "tail.png");
         pictures{i,3} = char(common + "fusion.png");
@@ -115,10 +118,6 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 分配 ISI 到每张图片，并且随机化
     isis = repmat(isiNeed, 1, repeatTrial)';
     isiWithRepeat = Shuffle(isis);
-
-    % 不能随机化图片，否则丧失了和 EXP.data 对应的能力
-    % % 随机化图片顺序（图片随机，本质上没有必要）
-    % pictures = Shuffle(pictures,2);
 
     % 将图片转换成为纹理
     textures = cell(trialsCount,2);
@@ -133,6 +132,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     EXP.isiWithRepeat = isiWithRepeat;
     EXP.answers = ones(trialsCount,1) * -1;
     EXP.actionTime = ones(trialsCount,1) * -1;
+    EXP.usedData = data(data(:,1) == -1, :);
 end
 
 function this_offset = drawFocusCross(w, last_offset, vblSlack, fontSize, showTime)
@@ -183,8 +183,8 @@ function [rowNumber, isRight] = waitForRectChoose(w, last_offset, vblSlack, row,
 
     [~, rowNumber] = ismember(choosedRect, cellRects2, 'rows');
 
-    fprintf('%-20s RowNumber Choosed is %d, RightNumber is %d\n', '[SEEKER][SELECT]', ...
-            rowNumber, rightAnswer);
+    fprintf('%-20s RowNumber Choosed is %d, RightNumber is %d, answer Right? %d\n',...
+            '[SEEKER][SELECT]', rowNumber, rightAnswer, rowNumber == rightAnswer);
 
     if rowNumber == rightAnswer
         isRight = 1;
