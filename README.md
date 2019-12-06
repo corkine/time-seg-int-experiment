@@ -24,6 +24,21 @@ configLoad.m 函数提供了一些基本配置逻辑，其被主脚本 main.m �
 
 > Psy4J.jar 只能运行在 Java 8 版本中，其文件较大，是因为封装了 Scala 类库所致（16 MB）。
 
+> 默认生成好了一套刺激供 Debug 使用：pics/1779，其文件名在 configLoad 中配置，在 debug 模式或者不指定 picId 情况下，默认使用这些刺激图片和元信息。
+
+> 生成图片和元信息供被试使用，只需要运行 initPics 命令，然后生成即可，调用 main.m 的时候，设置 configLoad 中的 debug 为 false，然后在对话框中输入 picsId 即可为被试使用此刺激。
+
+## 结果说明
+
+数据保存在 `姓名@日期.mat` 文件中。如下所示：
+
+![](http://static2.mazhangjing.com/20191206/cc9d42a_data_example.png)
+
+DATA struct 包含 segData、intData 信息，这是主要的数据，此外还有被试实验的 scrInfo - SCR struct 以及 conf - CONF struct 额外配置信息。
+
+segData 对应分离的 DATA struct，intData 对应整合的 DATA struct。其中，data 标示了所有刺激（不管用到还是没用到的）的信息，比如内含的判断的点的个数（负数表示），图片标号（用于对应图片文件），以及图片整合后的阵列信息（方便判断对错）。isSeg 标示是否是分离数据，isLearn 标示是否是学习数据，segStartTime 标示数据收集开始的时间，pictures 标示刺激的图片文件（不一定全部使用），isiWithRepeat 标示 trials 对应的 isi，answers 标示 trials 对应的被试的回答是否正确，actionTime 标示 trials 对应的反应时（单位为秒，从最后一帧消失开始计时），usedData 标示 trials 使用到的 data 部分。
+
+
 ## 最佳实践
 
 1. 对于函数写详细的注释，包括函数的作用和参数的作用。
