@@ -81,6 +81,7 @@ function [SCR, EXP] = initApplication(CONF)
         SCR.debug = CONF.debug;
         SCR.screenSize = CONF.screenSize;
     else
+        Screen('Preference', 'SkipSyncTests', 1);
         SCR.debug = false;
         SCR.screenSize = [];
     end
@@ -204,18 +205,34 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     % 初始化指定的条件，调用 runISISeeker 显示刺激，收集数据
     if isLearn
         if isSeg
-            intro = CONF.ISI_INTRO_S_EX;
+            if CONF.seekForISI
+                intro = CONF.ISI_INTRO_S_EX;
+            else
+                intro = CONF.NUM_INTRO_S_EX;
+            end
             fprintf('%-20s System will First Run SegISISeeker...\n','[MAIN][SEG][LEARN]');
         else
-            intro = CONF.ISI_INTRO_I_EX;
+            if CONF.seekForISI
+                intro = CONF.ISI_INTRO_I_EX;
+            else
+                intro = CONF.NUM_INTRO_I_EX;
+            end
             fprintf('%-20s System will First Run IntISISeeker...\n','[MAIN][INT][LEARN]');
         end
     else
         if isSeg
-            intro = CONF.ISI_INTRO_S;
+            if CONF.seekForISI
+                intro = CONF.ISI_INTRO_S;
+            else
+                intro = CONF.NUM_INTRO_S;
+            end
             fprintf('%-20s System will First Run SegISISeeker...\n','[MAIN][SEG]');
         else
-            intro = CONF.ISI_INTRO_I;
+            if CONF.seekForISI
+                intro = CONF.ISI_INTRO_I;
+            else
+                intro = CONF.NUM_INTRO_I;
+            end
             fprintf('%-20s System will First Run IntISISeeker...\n','[MAIN][INT]');
         end
     end

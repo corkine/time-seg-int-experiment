@@ -52,9 +52,10 @@ function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 		fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
 		lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 		
-		[~, isRight] = waitForRectChoose(w, lastOffSet, vblSlack,...
+		[userAnswer, isRight] = waitForRectChoose(w, lastOffSet, vblSlack,...
 						currentNum, needFeedback, CONF.feedbackSecs);
 		EXP.answers(K) = isRight;
+		EXP.userAnswers(K) = userAnswer;
 		EXP.actionTime(K) = GetSecs - lastOffSet;
 		K = K + 1;
 	end
@@ -129,6 +130,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 	EXP.pictures = pictures;
 	EXP.numberWithRepeat = cell2mat(pictures(:,4));
 	EXP.answers = ones(trialsCount,1) * -1;
+	EXP.userAnswers = ones(trialsCount,1) * -1;
 	EXP.actionTime = ones(trialsCount,1) * -1;
 	EXP.usedData = cell2mat(pictures(:,5));
 end
@@ -147,58 +149,38 @@ function this_offset = drawImage(w, last_offset, vblSlack, texture, showTime)
 	this_offset = this_onset_real + showTime;
 end
 
-function [rowNumber, isRight] = waitForRectChoose(w, last_offset, vblSlack, rightAnswer, needFeedback, feedBackDelaySecs)
-	% TODO: 重新实现此方法并且和正确值比较
+function [response, answerRight] = waitForRectChoose(w, last_offset, vblSlack, rightAnswer, needFeedback, feedBackDelaySecs)
 	Screen('Flip', w, last_offset - vblSlack);
-	ShowCursor;
-	cellRects = ArrangeRects(row * row, [0 0 width width],[0 0 width * row, width * row]);
-	[wx, wy] = WindowCenter(w);
-	offx = wx - width * row / 2;
-	offy = wy - width * row / 2;
-	cellRects2 = OffsetRect(cellRects, offx, offy);
-	rects = cellRects2'; %每列从上到下 x1,y1,x2,y2;
 
-	while true
-		[x, y, btns] = GetMouse;
-		choosedRect = [];
-		for i = 1:length(cellRects2)
-			currentRect = cellRects2(i,:);
-			if IsInRect(x, y, currentRect)
-				Screen('FillRect',w, [0 255 0], currentRect);
-				choosedRect = currentRect;
-			end
+	answer = Ask(w, 'How much target do you find? ',0, 128,'GetChar',[],'center');
+	try
+		response = str2double(answer);
+		if response == rightAnswer
+			answerRight = true;
+		else
+			answerRight = false;
 		end
-		Screen('FrameRect', w, [0 0 0], rects);
-		Screen('Flip',w);
-		WaitSecs(0.03);
-		if btns(1) && ~isempty(choosedRect)
-			fprintf('%-20s Checked Choose Result %d %d %d %d\n','[SEEKER][SELECT]',...
-						choosedRect(1,1), choosedRect(1,2),choosedRect(1,3), choosedRect(1,4));
-			break;
-		end
+	catch
+		fprintf('%-20s Get Num Error!\n', '[MAIN][RESPONSE]');
+		response = -1;
+		answerRight = false;
 	end
+
 	Screen('Flip',w);
-	HideCursor;
 
-	[~, rowNumber] = ismember(choosedRect, cellRects2, 'rows');
-
-	fprintf('%-20s RowNumber Choosed is %d, RightNumber is %d, answer Right? %d\n',...
-			'[SEEKER][SELECT]', rowNumber, rightAnswer, rowNumber == rightAnswer);
-
-	if rowNumber == rightAnswer
-		isRight = 1;
-		if needFeedback
+	if needFeedBack
+		if answerRight
 			DrawFormattedText(w,'Right Answer!','center','center',[0 0 0]);
 			Screen('Flip',w);
-			WaitSecs(feedBackDelaySecs);
-		end
-	else
-		isRight = 0;
-		if needFeedback
+		else
 			DrawFormattedText(w,'Wrong Answer!','center','center',[255 0 0]);
 			Screen('Flip',w);
-			WaitSecs(feedBackDelaySecs);
 		end
+		WaitSecs(feedBackDelaySecs);
 	end
+
 	Screen('Flip',w);
+
+	fprintf('%-20s Get Response %d [Right is %d] and is Right? %d!\n', '[MAIN][RESPONSE]',...
+			response, rightAnswer, answerRight);
 end
