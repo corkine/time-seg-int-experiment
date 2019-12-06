@@ -186,7 +186,7 @@ function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
     if CONF.useUnlimitLearn
         while true
             EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn);
-            a = EXP_SPEC.answers
+            a = EXP_SPEC.answers;
             acc = length(a(a(:,1) == 1)) / length(a);
             if acc >= CONF.minCurrent
                 fprintf('%-20s ACC is %2.2f...\n', '[MAIN][SEG][LEARN]', acc);
