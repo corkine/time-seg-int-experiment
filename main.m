@@ -1,7 +1,7 @@
 % 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语，变量更改如下所示：
 % EXP_S, EXP_S_EX, EXP_I, EXP_I_EX
 % dialogLoad
-%   [ADD] CONF.seekForISI, name, gender, note, startTime
+%   [ADD] CONF.seekForISI, name, gender, note, startTime, prefISI
 % initApplication
 %   [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
 % initScreen
@@ -22,40 +22,39 @@ SCR = initScreen(SCR);
 try
     % [SCR, EXP] = runTest(SCR, EXP, CONF, w);
     if CONF.seekForISI
-        % useSegFirst = Shuffle([0 1]);
-        useSegFirst = [1,0];
-        if useSegFirst(1) % 随机化 Seg、Int 顺序
-            % 总指导语
-            showIntro(SCR, CONF.ISI_INTRO, 0.5);
-            % Seg - 练习
-            EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
-            % Seg - 正式
-            EXP_S = initCondition(SCR, EXP, CONF, true, false);
-            % 中间休息
-            fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]',CONF.participartRelex);
-            showSleep(SCR, CONF.participartRelex, 0.5);
-            % Int - 练习
-            EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
-            % Int - 正式
-            EXP_I = initCondition(SCR, EXP, CONF, false, false);
-        else
-            % 总指导语
-            showIntro(SCR, CONF.ISI_INTRO, 0.5);
-            % Int - 练习
-            EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
-            % Int - 正式
-            EXP_I = initCondition(SCR, EXP, CONF, false, false);
-            % 中间休息
-            fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]', CONF.participartRelex);
-            showSleep(SCR, CONF.participartRelex, 0.5);
-            % Seg - 练习
-            EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
-            % Seg - 正式
-            EXP_S = initCondition(SCR, EXP, CONF, true, false);
-        end
+        totalIntro = CONF.ISI_INTRO;
     else
-        % TODO 未实现
-        % [SCR, EXP] = runNumSeeker(SCR, EXP, CONF);
+        totalIntro = CONF.NUM_INTRO;
+    end
+    useSegFirst = Shuffle([0 1]);
+    if useSegFirst(1) % 随机化 Seg、Int 顺序
+        % 总指导语
+        showIntro(SCR, totalIntro, 0.5);
+        % Seg - 练习
+        EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
+        % Seg - 正式
+        EXP_S = initCondition(SCR, EXP, CONF, true, false);
+        % 中间休息
+        fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]',CONF.participartRelex);
+        showSleep(SCR, CONF.participartRelex, 0.5);
+        % Int - 练习
+        EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
+        % Int - 正式
+        EXP_I = initCondition(SCR, EXP, CONF, false, false);
+    else
+        % 总指导语
+        showIntro(SCR, totalIntro, 0.5);
+        % Int - 练习
+        EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
+        % Int - 正式
+        EXP_I = initCondition(SCR, EXP, CONF, false, false);
+        % 中间休息
+        fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]', CONF.participartRelex);
+        showSleep(SCR, CONF.participartRelex, 0.5);
+        % Seg - 练习
+        EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
+        % Seg - 正式
+        EXP_S = initCondition(SCR, EXP, CONF, true, false);
     end
     
     % 保存所有数据
@@ -227,6 +226,9 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     EXP_SPEC = EXP;
     EXP_SPEC.isSeg = isSeg;
     EXP_SPEC.isLearn = isLearn;
-    [~, EXP_SPEC] = runISISeeker(SCR, EXP_SPEC, CONF);
+    if CONF.seekForISI
+        [~, EXP_SPEC] = runISISeeker(SCR, EXP_SPEC, CONF);
+    else 
+        [~, EXP_SPEC] = runNumSeeker(SCR, EXP_SPEC, CONF);
+    end
 end
-
