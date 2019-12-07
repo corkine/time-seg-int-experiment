@@ -3,7 +3,7 @@ function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 	%
 	%   [ADD] EXP.segStartTime, EXP.intStartTime
 	%   prepareMaterial 
-	% 		[ADD] EXP.pictures, EXP.numberWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat
+	% 		[ADD] EXP.pictures, EXP.numberWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat, EXP.userAnswers
 	
 	% 准备一些可复用的变量和 PTB 材料
 	w = SCR.window;
