@@ -117,7 +117,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 
     % 分配 ISI 到每张图片，并且随机化
     isis = repmat(isiNeed, 1, repeatTrial)';
-    isiWithRepeat = Shuffle(isis);
+    isiWithRepeat = Shuffle(isis); %n*1 因此 Shuffle 没有问题
 
     % 将图片转换成为纹理
     textures = cell(trialsCount,2);

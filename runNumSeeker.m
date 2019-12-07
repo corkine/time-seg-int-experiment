@@ -98,25 +98,27 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 	pictures = cell(trialsCount,3);
 	data = EXP.data;
 	% 对于每一个数字，构造 repeat 张图片
+	pictureIndex = 1;
 	for number = numberNeed
 		% 先找到这个数字的图片编号
-		picSNs = data(data(:,1) == -1 * number, 2);
-		currentLine = data(data(:,1) == -1 * number, :);
+		picSNs = data(data(:,1) == -1 * number, 2); %180*1
+		currentLine = data(data(:,1) == -1 * number, :); %180*66
 		% 添加到所有数组共享的 pictures 数组
 		for i = 1: repeatTrial
 			picSN = picSNs(i);
 			commonFile = sprintf("sti_%d_%d_%d_", number, CONF.cheeseRow, picSN);
 			common = fullfile(CONF.picFolder, CONF.picID, commonFile);
-			pictures{i,1} = char(common + "head.png");
-			pictures{i,2} = char(common + "tail.png");
-			pictures{i,3} = char(common + "fusion.png");
-			pictures{i,4} = number;
-			pictures{i,5} = currentLine;
+			pictures{pictureIndex,1} = char(common + "head.png");
+			pictures{pictureIndex,2} = char(common + "tail.png");
+			pictures{pictureIndex,3} = char(common + "fusion.png");
+			pictures{pictureIndex,4} = number;
+			pictures{pictureIndex,5} = currentLine(i,:);
+			pictureIndex = pictureIndex + 1;
 		end
 	end
 
 	% 随机化 pictures
-	pictures = Shuffle(pictures);
+	pictures = Shuffle(pictures,2); %注意，必须使用 row Shuffle，否则行会乱
 
 	% 将图片转换成为纹理
 	textures = cell(trialsCount,2);
@@ -129,6 +131,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 
 	EXP.pictures = pictures;
 	EXP.numberWithRepeat = cell2mat(pictures(:,4));
+	EXP.numberWithRepeat
 	EXP.answers = ones(trialsCount,1) * -1;
 	EXP.userAnswers = ones(trialsCount,1) * -1;
 	EXP.actionTime = ones(trialsCount,1) * -1;
@@ -168,7 +171,7 @@ function [response, answerRight] = waitForRectChoose(w, last_offset, vblSlack, r
 
 	Screen('Flip',w);
 
-	if needFeedBack
+	if needFeedback
 		if answerRight
 			DrawFormattedText(w,'Right Answer!','center','center',[0 0 0]);
 			Screen('Flip',w);
