@@ -50,13 +50,13 @@ function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 		fprintf('%-20s Show ISI in %1.0f ms\n','[SEEKER][SHOW]',prefISI * 1000);
 		waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, prefISI);
 		fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
-		lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
+		t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 		
-		[userAnswer, isRight] = waitForRectChoose(w, lastOffSet, vblSlack,...
+		[userAnswer, isRight, lastOffSet] = waitForRectChoose(w, lastOffSet, vblSlack,...
 						currentNum, needFeedback, CONF.feedbackSecs);
 		EXP.answers(K) = isRight;
 		EXP.userAnswers(K) = userAnswer;
-		EXP.actionTime(K) = GetSecs - lastOffSet;
+		EXP.actionTime(K) = t2OffSet - lastOffSet;
 		K = K + 1;
 	end
 
@@ -151,7 +151,7 @@ function this_offset = drawImage(w, last_offset, vblSlack, texture, showTime)
 	this_offset = this_onset_real + showTime;
 end
 
-function [response, answerRight] = waitForRectChoose(w, last_offset, vblSlack, rightAnswer, needFeedback, feedBackDelaySecs)
+function [response, answerRight, lastOffSet] = waitForRectChoose(w, last_offset, vblSlack, rightAnswer, needFeedback, feedBackDelaySecs)
 	Screen('Flip', w, last_offset - vblSlack);
 
 	answer = Ask(w, 'How much target do you find? ',0, 128,'GetChar',[],'center');
@@ -181,7 +181,7 @@ function [response, answerRight] = waitForRectChoose(w, last_offset, vblSlack, r
 		WaitSecs(feedBackDelaySecs);
 	end
 
-	Screen('Flip',w);
+	lastOffSet = Screen('Flip',w);
 
 	fprintf('%-20s Get Response %d [Right is %d] and is Right? %d!\n', '[MAIN][RESPONSE]',...
 			response, rightAnswer, answerRight);

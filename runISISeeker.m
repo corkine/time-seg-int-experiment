@@ -50,7 +50,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
         fprintf('%-20s Show ISI in %1.0f ms\n','[SEEKER][SHOW]',thisTrialISI * 1000);
         waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, thisTrialISI);
         fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
-        lastOffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
+        t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 
         currentSti = EXP.usedData(K,:); %66列1行
         % 因为第一列为数字，第二列为编号，因此从第三列开始，找到的数字应该 - 2 
@@ -61,10 +61,10 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
             findAns = find(currentSti == 2);
             rightNum = findAns(1) - 2;
         end
-        [~, isRight] = waitForRectChoose(w, lastOffSet, vblSlack, CONF.cheeseRow, CONF.cheeseGridWidth,...
+        [~, isRight, lastOffSet] = waitForRectChoose(w, t2OffSet, vblSlack, CONF.cheeseRow, CONF.cheeseGridWidth,...
                                     rightNum, needFeedback, CONF.feedbackSecs);
         EXP.answers(K) = isRight;
-        EXP.actionTime(K) = GetSecs - lastOffSet;
+        EXP.actionTime(K) = lastOffSet - t2OffSet;
         K = K + 1;
     end
 
@@ -149,7 +149,7 @@ function this_offset = drawImage(w, last_offset, vblSlack, texture, showTime)
     this_offset = this_onset_real + showTime;
 end
 
-function [rowNumber, isRight] = waitForRectChoose(w, last_offset, vblSlack, row, width, rightAnswer, needFeedback, feedBackDelaySecs)
+function [rowNumber, isRight, lastOffSet] = waitForRectChoose(w, last_offset, vblSlack, row, width, rightAnswer, needFeedback, feedBackDelaySecs)
     Screen('Flip', w, last_offset - vblSlack);
     ShowCursor;
     cellRects = ArrangeRects(row * row, [0 0 width width],[0 0 width * row, width * row]);
@@ -201,5 +201,5 @@ function [rowNumber, isRight] = waitForRectChoose(w, last_offset, vblSlack, row,
             WaitSecs(feedBackDelaySecs);
         end
     end
-    Screen('Flip',w);
+    lastOffSet = Screen('Flip',w);
 end
