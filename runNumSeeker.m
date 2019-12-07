@@ -3,7 +3,7 @@ function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 	%
 	%   [ADD] EXP.segStartTime, EXP.intStartTime
 	%   prepareMaterial 
-	% 		[ADD] EXP.pictures, EXP.numberWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData
+	% 		[ADD] EXP.pictures, EXP.numberWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat
 	
 	% 准备一些可复用的变量和 PTB 材料
 	w = SCR.window;
@@ -131,7 +131,6 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 
 	EXP.pictures = pictures;
 	EXP.numberWithRepeat = cell2mat(pictures(:,4));
-	EXP.numberWithRepeat
 	EXP.answers = ones(trialsCount,1) * -1;
 	EXP.userAnswers = ones(trialsCount,1) * -1;
 	EXP.actionTime = ones(trialsCount,1) * -1;

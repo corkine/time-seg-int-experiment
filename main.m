@@ -9,7 +9,7 @@
 % runISISeeker
 %   [ADD] EXP.segStartTime, EXP.intStartTime
 %   prepareMaterial 
-%       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData
+%       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat
 %
 %  请勿直接调用 Psy4J.jar 生成图片，通过此函数调用的 Psy4J.jar 会将结果保存到 debug_data.mat 中
 %  以备 debug 模式使用。此数据和图片顺序对应，包含了图片中的点阵关键信息。
