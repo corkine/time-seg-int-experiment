@@ -3,14 +3,18 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 % isSeg 表明当前 Seeker 是否是寻找 Seg 的（或者是寻找 Int 的）。isFirst 表明
 % 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
 %
-%   [ADD] EXP.segStartTime, EXP.intStartTime
+%   [ADD] EXP.segStartTime, EXP.intStartTime, EXP.isiNeed, EXP.learnTaskIsiNeed
 %   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime,EXP.usedData
 
     % 准备一些可复用的变量和 PTB 材料
     w = SCR.window;
     vblSlack = SCR.vblSlack;
-	t_gray = MakeTexture(w, CONF.GRAY_IMAGE);
-    duration = CONF.stimulateDuration;
+	textureGray = MakeTexture(w, CONF.GRAY_IMAGE);
+    % duration = CONF.stimulateDuration;
+    duration = CONF.stimulateDurationFs * SCR.frameDuration;
+    % flashcardsRepetitionK = CONF.flashcardsRepetitionK;
+    EXP.isiNeed = CONF.isiNeedFs * SCR.frameDuration;
+    EXP.learnTakeIsiNeed = CONF.learnTakeIsiNeedFs * SCR.frameDuration;
     isLearn = EXP.isLearn;
     isSeg = EXP.isSeg;
 
@@ -29,7 +33,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
     [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w);
 
     % 开始循环呈现 trial
-    Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
+    Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
     
     lastOffSet = GetSecs;	
 	K = 1;
@@ -48,7 +52,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
         fprintf('%-20s Show First Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
         t1OffSet = drawImage(w, crossOffSet, vblSlack, t01, duration);
         fprintf('%-20s Show ISI in %1.0f ms\n','[SEEKER][SHOW]',thisTrialISI * 1000);
-        waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, thisTrialISI);
+        waitOffSet = drawImage(w, t1OffSet, vblSlack, textureGray, thisTrialISI);
         fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
         t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 
@@ -84,10 +88,10 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 
     % 获取 ISI
     if EXP.isLearn
-        isiNeed = CONF.learnTakeIsiNeed;
+        isiNeed = EXP.learnTakeIsiNeed;
         repeatTrial = CONF.learnRepeatTrial;
     else
-        isiNeed = CONF.isiNeed;
+        isiNeed = EXP.isiNeed;
         repeatTrial = CONF.repeatTrial;
     end
  

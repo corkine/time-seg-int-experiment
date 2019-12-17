@@ -8,11 +8,16 @@ function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 % 准备一些可复用的变量和 PTB 材料
 w = SCR.window;
 vblSlack = SCR.vblSlack;
-t_gray = MakeTexture(w, CONF.GRAY_IMAGE);
-duration = CONF.stimulateDuration;
+textureGray = MakeTexture(w, CONF.GRAY_IMAGE);
+duration = CONF.stimulateDurationFs * SCR.frameDuration;
+beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
+maskDuration = CONF.MaskDurationFs * SCR.frameDuration;
+% TODO: 更改 prefISI 的来源，由输入定义
+prefISI = CONF.prefISIFs * SCR.frameDuration;
+repetitionK = CONF.flashcardsRepetitionK;
+
 isLearn = EXP.isLearn;
 isSeg = EXP.isSeg;
-prefISI = CONF.prefISI;
 
 if isLearn
 	needFeedback = true;
@@ -29,7 +34,7 @@ end
 [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w);
 
 % 开始循环呈现 trial
-Screen('DrawTexture',w,t_gray,[],[]); Screen('Flip',w);
+Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
 
 lastOffSet = GetSecs;	
 K = 1;
@@ -48,15 +53,15 @@ while (K - 1 < trialsCount)
 	fprintf('%-20s Show First Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
 	t1OffSet = drawImage(w, crossOffSet, vblSlack, t01, duration);
 	fprintf('%-20s Show ISI in %1.0f ms\n','[SEEKER][SHOW]',prefISI * 1000);
-	waitOffSet = drawImage(w, t1OffSet, vblSlack, t_gray, prefISI);
+	waitOffSet = drawImage(w, t1OffSet, vblSlack, textureGray, prefISI);
 	fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
 	t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
 	
-	[userAnswer, isRight, lastOffSet] = waitForRectChoose(w, lastOffSet, vblSlack,...
+	[userAnswer, isRight, lastOffSet] = waitForRectChoose(w, t2OffSet, vblSlack,...
 					currentNum, needFeedback, CONF.feedbackSecs);
 	EXP.answers(K) = isRight;
 	EXP.userAnswers(K) = userAnswer;
-	EXP.actionTime(K) = t2OffSet - lastOffSet;
+	EXP.actionTime(K) = lastOffSet - t2OffSet;
 	K = K + 1;
 end
 
