@@ -3,8 +3,11 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 % isSeg 表明当前 Seeker 是否是寻找 Seg 的（或者是寻找 Int 的）。isFirst 表明
 % 当前 Seeker 首先呈现，意味着在此 Seeker 之后需要休息。
 %
-%   [ADD] EXP.segStartTime, EXP.intStartTime, EXP.isiNeed, EXP.learnTaskIsiNeed
-%   prepareMaterial [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime,EXP.usedData
+%   [ADD] EXP.segStartTime, EXP.intStartTime, EXP.isiNeed, EXP.learnTaskIsiNeed, 
+%   Stimuli.maskOnsetReal, Stimuli.maskOffSetReal
+%   prepareMaterial 
+%       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, 
+%             EXP.usedData, EXP.totalStiShowTime
 
     % 准备一些可复用的变量和 PTB 材料
     w = SCR.window;
@@ -12,9 +15,14 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 	textureGray = MakeTexture(w, CONF.GRAY_IMAGE);
     % duration = CONF.stimulateDuration;
     duration = CONF.stimulateDurationFs * SCR.frameDuration;
-    % flashcardsRepetitionK = CONF.flashcardsRepetitionK;
+    beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
+    beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
+    maskDuration = CONF.maskDurationFs * SCR.frameDuration;
+    repetitionK = CONF.flashcardsRepetitionK;
+
     EXP.isiNeed = CONF.isiNeedFs * SCR.frameDuration;
     EXP.learnTakeIsiNeed = CONF.learnTakeIsiNeedFs * SCR.frameDuration;
+
     isLearn = EXP.isLearn;
     isSeg = EXP.isSeg;
 
@@ -31,33 +39,48 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 
     % 准备图片等实验材料，设置 trial
     [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w);
+    Stimuli = initMask(SCR, CONF);
 
     % 开始循环呈现 trial
     Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
     
     lastOffSet = GetSecs;	
-	K = 1;
-    while (K - 1 < trialsCount)
+	C = 1;
+    while (C - 1 < trialsCount)
 
-        thisTrialISI = EXP.isiWithRepeat(K);
+        thisTrialISI = EXP.isiWithRepeat(C);
 
-        fprintf('%-20s Trial[%s] - %d with ISI %4.0f ms and Image %s\n', '[SEEKER][SHOW]', ...
-                trialMark, K, thisTrialISI * 1000, EXP.pictures{K, 3});
+        fprintf('%-20s - %d %s Trial: ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
+                C, trialMark, thisTrialISI * 1000, EXP.pictures{C, 3});
         
-        t01 = textures{K, 1};
-        t02 = textures{K, 2};
+        t01 = textures{C, 1};
+        t02 = textures{C, 2};
 
-        crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, ...
-                                    CONF.crossSize, CONF.crossDuration);
-        fprintf('%-20s Show First Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
-        t1OffSet = drawImage(w, crossOffSet, vblSlack, t01, duration);
-        fprintf('%-20s Show ISI in %1.0f ms\n','[SEEKER][SHOW]',thisTrialISI * 1000);
-        waitOffSet = drawImage(w, t1OffSet, vblSlack, textureGray, thisTrialISI);
-        fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
-        t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
-
-        currentSti = EXP.usedData(K,:); %66列1行
-        % 因为第一列为数字，第二列为编号，因此从第三列开始，找到的数字应该 - 2 
+        % 先呈现 cross
+        fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',CONF.crossDuration * 1000);
+        crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, CONF.crossDuration);\
+        % 循环 repetitionK 次呈现刺激
+        Priority(2);
+        K = 0; 
+        lastOffSetInner = crossOffSet;
+        fprintf('%-20s Show First Image %1.0f ms, ISI %1.0f ms, Last Image %1.0f ms with %1.0f repeat\n', ...
+                '[SEEKER][SHOW]',duration * 1000, thisTrialISI * 1000, duration * 1000, repetitionK);
+        while K < repetitionK
+            [t1OffSet, t1OnsetReal] = drawImage(w, lastOffSetInner, vblSlack, t01, duration);
+            waitOffSet = drawImage(w, t1OffSet, vblSlack, textureGray, thisTrialISI);
+            t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
+            [lastOffSetInner, t2OffsetReal] = drawImage(w, t2OffSet, vblSlack, textureGray, thisTrialISI);
+            if K == 0, stimuliOnset = t1OnsetReal; end
+            K = K + 1;
+        end
+        % 经过 beforeMaskDelay 后呈现 mask
+        Screen('FillRect', w, Stimuli.MaskRectsColor,Stimuli.MaskRects);
+        Stimuli.maskOnsetReal = Screen('flip', w, t2OffsetReal + beforeMaskDelay - vblSlack);
+        Stimuli.maskOffSetReal = Screen('flip', w, Stimuli.maskOnsetReal + maskDuration - vblSlack);
+        Priority(0);
+        % 经过 beforeRectChooseDelay 后要求被试回答
+        delayOffSet = WaitSecs(beforeRectChooseDelay);
+        currentSti = EXP.usedData(C,:); % 因为第一列为数字，第二列为编号，因此从第三列开始，找到的数字应该 - 2 
         if isSeg
             findAns = find(currentSti == 1);
             rightNum = findAns(1) - 2;
@@ -65,11 +88,12 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
             findAns = find(currentSti == 2);
             rightNum = findAns(1) - 2;
         end
-        [~, isRight, lastOffSet] = waitForRectChoose(w, t2OffSet, vblSlack, CONF.cheeseRow, CONF.cheeseGridWidth,...
+        [~, isRight, lastOffSet] = waitForRectChoose(w, delayOffSet, vblSlack, CONF.cheeseRow, CONF.cheeseGridWidth,...
                                     rightNum, needFeedback, CONF.feedbackSecs);
-        EXP.answers(K) = isRight;
-        EXP.actionTime(K) = lastOffSet - t2OffSet;
-        K = K + 1;
+        EXP.answers(C) = isRight;
+        EXP.actionTime(C) = lastOffSet - delayOffSet;
+        EXP.totalStiShowTime(C) = t2OffsetReal - stimuliOnset;
+        C = C + 1;
     end
 
 end
@@ -137,6 +161,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     EXP.answers = ones(trialsCount,1) * -1;
     EXP.actionTime = ones(trialsCount,1) * -1;
     EXP.usedData = data(data(:,1) == -1, :);
+    EXP.totalStiShowTime = ones(trialsCount,1) * -1;
 end
 
 function this_offset = drawFocusCross(w, last_offset, vblSlack, fontSize, showTime)

@@ -4,7 +4,7 @@ function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
 %   [ADD] EXP.segStartTime, EXP.intStartTime, Stimuli.maskOnsetReal, Stimuli.maskOffSetReal
 %   prepareMaterial 
 % 		[ADD] EXP.pictures, EXP.numberWithRepeat, EXP.answers, EXP.actionTime, 
-% 			  EXP.usedData, EXP.numberWithRepeat, EXP.userAnswers, EXP.totalStiShowTime
+% 			  EXP.usedData, EXP.userAnswers, EXP.totalStiShowTime
 
 % 准备一些可复用的变量和 PTB 材料
 w = SCR.window;
@@ -34,7 +34,7 @@ end
 
 % 准备图片等实验材料，设置 trial
 [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w);
-Stimuli = maskCalculation(SCR, CONF);
+Stimuli = initMask(SCR, CONF);
 
 % 开始循环呈现 trial
 Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
@@ -54,10 +54,10 @@ while (C - 1 < trialsCount)
 	% 先呈现 cross
 	fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',CONF.crossDuration * 1000);
 	crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, CONF.crossDuration);
+	% 循环 repetitionK 次呈现刺激
 	Priority(2);
 	K = 0; 
 	lastOffSetInner = crossOffSet;
-	% 循环 repetitionK 次呈现刺激
 	fprintf('%-20s Show First Image %1.0f ms, ISI %1.0f ms, Last Image %1.0f ms with %1.0f repeat\n', ...
 			'[SEEKER][SHOW]',duration * 1000, prefISI * 1000, duration * 1000, repetitionK);
 	while K < repetitionK
@@ -212,52 +212,4 @@ function [response, answerRight, lastOffSet] = waitForRectChoose(w, last_offset,
 	fprintf('%-20s Get Response %d [Right is %d] and is Right? %d!\n', '[SEEKER][ANSWER]',...
 			response, rightAnswer, answerRight);
 	ListenChar(0);
-end
-
-function R = combineFactors(varargin)
-	tmpNum = 1;
-	for i=1:length(varargin)
-		tmpNum = tmpNum*length(varargin{i});
-	end
-	R = zeros(tmpNum,length(varargin));
-	for i = 1:size(R,1)
-		tmp = tmpNum;
-		for j = 1:length(varargin)
-			if j~=1
-				tmp = tmp/length(varargin{j-1});
-			end
-			for k = 1:length(varargin{j})
-				R(i,j)=varargin{j}(ceil((mod(i-1,tmp)+1)/(tmp/length(varargin{j}))));
-			end
-		end
-	end
-end
-
-function [Stimuli] = maskCalculation(SCR, CONF)
-	Stimuli.ObjAreaSizeP = CONF.cheeseRow * CONF.cheeseGridWidth;
-	Stimuli.MaskRectSizeP = CONF.cheeseGridWidth;
-
-	%% masks 
-	%此处mask暂时是大小相同、颜色随机的颜色方块
-	% loc  
-	Stimuli.MaskRectNum = ceil(Stimuli.ObjAreaSizeP/Stimuli.MaskRectSizeP); % num = length/size
-	Stimuli.PointMetrix = combineFactors(0:Stimuli.MaskRectNum-1,0:Stimuli.MaskRectNum-1);   % mask中每个小方块都归属于某一列（同列的x坐标相同），然后再归属于某一行（同行的y坐标相同）！
-	Stimuli.referencePoint = [SCR.x - Stimuli.ObjAreaSizeP/2, SCR.y - Stimuli.ObjAreaSizeP/2];%左上角顶点坐标
-	LeftUpPoints(:,1) = Stimuli.PointMetrix(:,1) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,1);%所有rect的左上角坐标
-	LeftUpPoints(:,2) = Stimuli.PointMetrix(:,2) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,2);
-	RightBotomPoints(:,1) = LeftUpPoints(:,1) + Stimuli.MaskRectSizeP;%所有rect右下角坐标
-	RightBotomPoints(:,2) = LeftUpPoints(:,2) + Stimuli.MaskRectSizeP;
-	Stimuli.MaskRects = [LeftUpPoints,RightBotomPoints];
-	Stimuli.MaskRects = Stimuli.MaskRects';
-	%color
-	Stimuli.PointMetrixSize = size(Stimuli.MaskRects);
-	rectsNum = Stimuli.PointMetrixSize(2);
-	Stimuli.MaskRectsColor = ones(3,rectsNum);
-
-	for rowindex = 1:rectsNum
-		tmp1=randperm(2); %随机掷黑白-黑白Mask
-		if tmp1(1)==1, Stimuli.MaskRectsColor(:,rowindex)=0;   end
-		if tmp1(1)==2, Stimuli.MaskRectsColor(:,rowindex)=255; end
-	end
-	
 end
