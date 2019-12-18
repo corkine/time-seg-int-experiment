@@ -5,7 +5,7 @@
 % initApplication
 %   [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
 % initScreen
-%   [ADD] SCR.window, windowRect, frameDuration, vblSlack
+%   [ADD] SCR.window, windowRect, frameDuration, vblSlack, x, y  
 % runISISeeker
 %   [ADD] EXP.segStartTime, EXP.intStartTime
 %   prepareMaterial 
@@ -66,8 +66,7 @@ try
     save(fileName,'DATA');
 
 catch exception
-    disp("Run PTB Error: " + string(exception.message) + ...
-    ", For more info, check exception variable");
+    fprintf("[ERROR INFO] %s", exception.getReport);
 end
 
 closeScreen(SCR.window);
@@ -103,6 +102,8 @@ function SCR = initScreen(SCR)
         [w,rect]= Screen('OpenWindow',0,[128 128 128],SCR.screenSize); 
     end
     SCR.window = w;
+    SCR.x = (rect(3) - rect(1))/2;
+    SCR.y = (rect(4) - rect(2))/2;
     SCR.windowRect = rect;
     SCR.frameDuration = Screen('GetFlipInterval',w); 
     SCR.vblSlack = SCR.frameDuration / 2;   

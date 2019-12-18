@@ -3,18 +3,17 @@ if isempty(Screen('Windows'))
 	[w,~]= Screen('OpenWindow',0,[128 128 128],[10,10,800,600]);
 end
 
-[wCenterX, wCenterY] = WindowCenter(w);
-rect = [0 0 200 200];
-loop = 1000;
-lastS = GetSecs;
-for i= 1:loop
-	if mod(i,2) == 0
-		color = [0 0 0];
-	else
-		color = [255, 255, 255];
+imgArray = getMask(10, 50);
+tId = Screen('MakeTexture', w, imgArray);
+Screen('DrawTexture', w, tId, [0 0 50 50], [0 0 350 350]);
+Screen('Flip',w);
+
+function imgArray = getMask(gridWidthPixel, gridEachRow)
+	seek = zeros(gridEachRow, 1);
+	for c = 1: length(seek)
+		for r = 1 : length(seek)
+			seek(c, r) = round(rand(1)) * 255;
+		end
 	end
-	centeredRect = CenterRectOnPoint(rect, wCenterX, wCenterY);
-	Screen('FillRect', w, color, centeredRect);
-	lastS = Screen('Flip',w, lastS + 0.033);
-	WaitSecs(0.002);
+	imgArray = seek;
 end

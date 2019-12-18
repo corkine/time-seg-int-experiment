@@ -12,7 +12,8 @@ vblSlack = SCR.vblSlack;
 textureGray = MakeTexture(w, CONF.GRAY_IMAGE);
 duration = CONF.stimulateDurationFs * SCR.frameDuration;
 beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
-maskDuration = CONF.MaskDurationFs * SCR.frameDuration;
+beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
+maskDuration = CONF.maskDurationFs * SCR.frameDuration;
 % TODO: 更改 prefISI 的来源，由输入定义
 prefISI = CONF.prefISIFs * SCR.frameDuration;
 repetitionK = CONF.flashcardsRepetitionK;
@@ -33,7 +34,7 @@ end
 
 % 准备图片等实验材料，设置 trial
 [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w);
-Stimuli = maskCalculation(SCR);
+Stimuli = maskCalculation(SCR, CONF);
 
 % 开始循环呈现 trial
 Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
@@ -44,8 +45,8 @@ while (C - 1 < trialsCount)
 
 	currentNum = EXP.numberWithRepeat(C,:);
 
-	fprintf('%-20s Trial[%s] - %d with Number %d, prefISI %4.0f ms and Image %s\n', '[SEEKER][SHOW]', ...
-			trialMark, C, currentNum ,prefISI * 1000, EXP.pictures{C, 3});
+	fprintf('%-20s - %d %s Trial: Number %d, prefISI %1.0f ms, Image %s\n', '[SEEKER][PREPARE]', ...
+			C, trialMark, currentNum ,prefISI * 1000, EXP.pictures{C, 3});
 	
 	t01 = textures{C, 1};
 	t02 = textures{C, 2};
@@ -56,27 +57,24 @@ while (C - 1 < trialsCount)
 	Priority(2);
 	K = 0; 
 	lastOffSetInner = crossOffSet;
-	% 再呈现刺激
+	% 循环 repetitionK 次呈现刺激
+	fprintf('%-20s Show First Image %1.0f ms, ISI %1.0f ms, Last Image %1.0f ms with %1.0f repeat\n', ...
+			'[SEEKER][SHOW]',duration * 1000, prefISI * 1000, duration * 1000, repetitionK);
 	while K < repetitionK
-		fprintf('%-20s Show First Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
 		[t1OffSet, t1OnsetReal] = drawImage(w, lastOffSetInner, vblSlack, t01, duration);
-		fprintf('%-20s Show ISI1 in %1.0f ms\n','[SEEKER][SHOW]',prefISI * 1000);
 		waitOffSet = drawImage(w, t1OffSet, vblSlack, textureGray, prefISI);
-		fprintf('%-20s Show Last Image in %1.0f ms\n','[SEEKER][SHOW]',duration * 1000);
 		t2OffSet = drawImage(w, waitOffSet, vblSlack, t02, duration);
-		fprintf('%-20s Show ISI2 in %1.0f ms\n','[SEEKER][SHOW]',prefISI * 1000);
 		[lastOffSetInner, t2OffsetReal] = drawImage(w, t2OffSet, vblSlack, textureGray, prefISI);
 		if K == 0, stimuliOnset = t1OnsetReal; end
 		K = K + 1;
 	end
-	% 再呈现 mask //TODO 优化代码
+	% 经过 beforeMaskDelay 后呈现 mask
 	Screen('FillRect', w, Stimuli.MaskRectsColor,Stimuli.MaskRects);
 	Stimuli.maskOnsetReal = Screen('flip', w, t2OffsetReal + beforeMaskDelay - vblSlack);
 	Stimuli.maskOffSetReal = Screen('flip', w, Stimuli.maskOnsetReal + maskDuration - vblSlack);
 	Priority(0);
-	% 经过一个延时
-	delayOffSet = WaitSecs(CONF.beforeRectChooseDelay);
-	% 要求被试回答
+	% 经过 beforeRectChooseDelay 后要求被试回答
+	delayOffSet = WaitSecs(beforeRectChooseDelay);
 	[userAnswer, isRight, lastOffSet] = waitForRectChoose(w, delayOffSet, vblSlack,...
 					currentNum, needFeedback, CONF.feedbackSecs);
 	EXP.answers(C) = isRight;
@@ -179,6 +177,7 @@ function [this_offset, this_onset_real] = drawImage(w, last_offset, vblSlack, te
 end
 
 function [response, answerRight, lastOffSet] = waitForRectChoose(w, last_offset, vblSlack, rightAnswer, needFeedback, feedBackDelaySecs)
+	ListenChar(2);
 	Screen('Flip', w, last_offset - vblSlack);
 
 	answer = Ask(w, 'How much target do you find? ',0, 128,'GetChar',[],'center');
@@ -210,11 +209,12 @@ function [response, answerRight, lastOffSet] = waitForRectChoose(w, last_offset,
 
 	lastOffSet = Screen('Flip',w);
 
-	fprintf('%-20s Get Response %d [Right is %d] and is Right? %d!\n', '[MAIN][RESPONSE]',...
+	fprintf('%-20s Get Response %d [Right is %d] and is Right? %d!\n', '[SEEKER][ANSWER]',...
 			response, rightAnswer, answerRight);
+	ListenChar(0);
 end
 
-function R = CombineFactors(varargin)
+function R = combineFactors(varargin)
 	tmpNum = 1;
 	for i=1:length(varargin)
 		tmpNum = tmpNum*length(varargin{i});
@@ -233,16 +233,15 @@ function R = CombineFactors(varargin)
 	end
 end
 
-
-function [Stimuli] = maskCalculation(SCR)
-	Stimuli.ObjAreaSizeP = 600;
-	Stimuli.MaskRectSizeP = 12;
+function [Stimuli] = maskCalculation(SCR, CONF)
+	Stimuli.ObjAreaSizeP = CONF.cheeseRow * CONF.cheeseGridWidth;
+	Stimuli.MaskRectSizeP = CONF.cheeseGridWidth;
 
 	%% masks 
 	%此处mask暂时是大小相同、颜色随机的颜色方块
 	% loc  
 	Stimuli.MaskRectNum = ceil(Stimuli.ObjAreaSizeP/Stimuli.MaskRectSizeP); % num = length/size
-	Stimuli.PointMetrix = CombineFactors(0:Stimuli.MaskRectNum-1,0:Stimuli.MaskRectNum-1);   % mask中每个小方块都归属于某一列（同列的x坐标相同），然后再归属于某一行（同行的y坐标相同）！
+	Stimuli.PointMetrix = combineFactors(0:Stimuli.MaskRectNum-1,0:Stimuli.MaskRectNum-1);   % mask中每个小方块都归属于某一列（同列的x坐标相同），然后再归属于某一行（同行的y坐标相同）！
 	Stimuli.referencePoint = [SCR.x - Stimuli.ObjAreaSizeP/2, SCR.y - Stimuli.ObjAreaSizeP/2];%左上角顶点坐标
 	LeftUpPoints(:,1) = Stimuli.PointMetrix(:,1) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,1);%所有rect的左上角坐标
 	LeftUpPoints(:,2) = Stimuli.PointMetrix(:,2) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,2);

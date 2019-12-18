@@ -17,7 +17,7 @@ CONF.targetNumber = 6;
 CONF.cheeseRow = 8;
 CONF.cheeseGridWidth = 60;
 
-CONF.seekForISI = 1;
+CONF.seekForISI = 0;
 CONF.name = 'DebugName';
 CONF.gender = 0;
 CONF.note = 'DebugNote'; 
@@ -72,4 +72,5 @@ CONF.stimulateDuration = 0.033;
 CONF.stimulateDurationFs = 1;
 CONF.prefISIFs = 1*1;
 CONF.beforeMaskDelayFs = 5;
-CONF.MaskDurationFs = 5;
+CONF.beforeRectChooseDelayFs = 5;
+CONF.maskDurationFs = 5;
