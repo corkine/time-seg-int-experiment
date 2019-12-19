@@ -5,6 +5,8 @@ function CONF = configLoad()
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
 CONF.debug = true;
+% 在正式实验前，去除这里的标记以让程序同步刷新
+CONF.noDebugSkipSyncTest = true;
 if CONF.debug 
 	CONF.screenSize = [10,10,800,600];
 else
@@ -23,6 +25,8 @@ CONF.gender = 0;
 CONF.note = 'DebugNote'; 
 CONF.picID = '1779';
 CONF.prefISI = 0.04;
+% prefISIFs 取决于 prefISI，dialogLoad 会自动设置其值，请勿在此修改
+CONF.prefISIFs = 1*1; 
 
 %%%%%%%%%%%%% 实验参数和配置，此处定义  %%%%%%%%%%%%
 CONF.ISI_INTRO= fullfile('assert','part1_intro.png');
@@ -70,7 +74,6 @@ end
 CONF.flashcardsRepetitionK = 5/1;
 CONF.stimulateDuration = 0.033;
 CONF.stimulateDurationFs = 1;
-CONF.prefISIFs = 1*1;
 CONF.beforeMaskDelayFs = 5;
 CONF.beforeRectChooseDelayFs = 5;
 CONF.maskDurationFs = 5;

@@ -58,7 +58,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 
         % 先呈现 cross
         fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',CONF.crossDuration * 1000);
-        crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, CONF.crossDuration);\
+        crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, CONF.crossDuration);
         % 循环 repetitionK 次呈现刺激
         Priority(2);
         K = 0; 
@@ -172,13 +172,14 @@ function this_offset = drawFocusCross(w, last_offset, vblSlack, fontSize, showTi
     this_offset = this_onset_real + showTime;
 end
 
-function this_offset = drawImage(w, last_offset, vblSlack, texture, showTime)
+function [this_offset, this_onset_real] = drawImage(w, last_offset, vblSlack, texture, showTime)
     Screen('DrawTexture',w,texture,[],[]);        
     this_onset_real = Screen('Flip', w, last_offset - vblSlack);   
     this_offset = this_onset_real + showTime;
 end
 
 function [rowNumber, isRight, lastOffSet] = waitForRectChoose(w, last_offset, vblSlack, row, width, rightAnswer, needFeedback, feedBackDelaySecs)
+    ListenChar(2);
     Screen('Flip', w, last_offset - vblSlack);
     ShowCursor;
     cellRects = ArrangeRects(row * row, [0 0 width width],[0 0 width * row, width * row]);
@@ -231,4 +232,5 @@ function [rowNumber, isRight, lastOffSet] = waitForRectChoose(w, last_offset, vb
         end
     end
     lastOffSet = Screen('Flip',w);
+    ListenChar(0);
 end

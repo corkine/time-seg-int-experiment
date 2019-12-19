@@ -18,6 +18,9 @@ CONF = configLoad();
 CONF = dialogLoad(CONF);
 [SCR, EXP] = initApplication(CONF); 
 SCR = initScreen(SCR);
+if ~CONF.seekForISI
+    CONF = computePrefIsiFs(SCR, CONF);
+end
 
 try
     % [SCR, EXP] = runTest(SCR, EXP, CONF, w);
@@ -75,12 +78,19 @@ function [SCR, EXP] = initApplication(CONF)
     % 初始化应用程序，包括应用 DEBUG 模式，设置默认 EXP 值，
     % 调用 Java/MAT 文件获取图片列表对应的数据信息。
     % [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
+    Screen('Preference','SuppressAllWarnings', true);
     if CONF.debug
+        fprintf('%-20s Use Debug mode, Skip Sync Test\n','[MAIN]');
         Screen('Preference', 'SkipSyncTests', 1);
         SCR.debug = CONF.debug;
         SCR.screenSize = CONF.screenSize;
     else
-        Screen('Preference', 'SkipSyncTests', 1);
+        if CONF.noDebugSkipSyncTest
+            fprintf('%-20s !!!!!!!!!! Warning, Skip Sync Test in no Debug mode !!!!!!!!\n','[MAIN]');
+            Screen('Preference', 'SkipSyncTests', 1);
+        else
+            Screen('Preference', 'SkipSyncTests', 0);
+        end
         SCR.debug = false;
         SCR.screenSize = [];
     end
@@ -96,7 +106,6 @@ function SCR = initScreen(SCR)
     % [ADD] SCR.window, windowRect, frameDuration, vblSlack
     %初始化 Screen
     if isempty(SCR.screenSize)
-        Screen('Preference', 'SkipSyncTests', 1);
         [w,rect]= Screen('OpenWindow',0,[128 128 128]); 
     else
         [w,rect]= Screen('OpenWindow',0,[128 128 128],SCR.screenSize); 
@@ -109,6 +118,12 @@ function SCR = initScreen(SCR)
     SCR.vblSlack = SCR.frameDuration / 2;   
     HideCursor;
     Priority(2); % request the maximum amount of CPU time
+end
+
+function CONF = computePrefIsiFs(SCR, CONF)
+    CONF.prefISIFs = CONF.prefISI / SCR.frameDuration;
+    fprintf('%-20s Setting CONF.prefISIFs %1.2f by CONF.prefISI %1.0f ms and SCR.frameDuration %1.0f ms\n', ...
+            '[MAIN]', CONF.prefISIFs, CONF.prefISI * 1000, SCR.frameDuration * 1000);
 end
 
 function closeScreen(w)
