@@ -1,5 +1,5 @@
 % 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语，变量更改如下所示：
-% EXP_S, EXP_S_EX, EXP_I, EXP_I_EX
+% EXP_S, EXP_S_EX, EXP_I, EXP_I_EX, EXP.flashcardsRepetitionK
 % dialogLoad
 %   [ADD] CONF.seekForISI, name, gender, note, startTime, prefISI
 % initApplication
@@ -218,7 +218,7 @@ function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
 end
 
 function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
-    % 初始化指定的条件，调用 runISISeeker 显示刺激，收集数据
+% 初始化指定的条件，根据 LearnOrNot、SegOrInt、IsiOrNum 遍历 K 调用 seeker 显示刺激，收集数据
     if isLearn
         if isSeg
             if CONF.seekForISI
@@ -259,9 +259,22 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     EXP_SPEC = EXP;
     EXP_SPEC.isSeg = isSeg;
     EXP_SPEC.isLearn = isLearn;
+    % 随机化需要重复的 K 次
+    repKNeed = Shuffle(CONF.repKNeed);
+    % 针对 ISI 和 NUM Seeker 分别遍历 K 次试验
     if CONF.seekForISI
-        [~, EXP_SPEC] = runISISeeker(SCR, EXP_SPEC, CONF);
+        for k = repKNeed
+            fprintf('%-20s System will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
+            EXP_SPEC.flashcardsRepetitionK = k;
+            [~, EXP_SPEC_K] = runISISeeker(SCR, EXP_SPEC, CONF);
+            EXP_SPEC.data{k} = EXP_SPEC_K;
+        end
     else 
-        [~, EXP_SPEC] = runNumSeeker(SCR, EXP_SPEC, CONF);
+        for k = repKNeed
+            fprintf('%-20s System will Use repK %1.3f\n','[MAIN][NUM][SET-K]',k);
+            EXP_SPEC.flashcardsRepetitionK = k;
+            [~, EXP_SPEC_K] = runNumSeeker(SCR, EXP_SPEC, CONF);
+            EXP_SPEC.data{k} = EXP_SPEC_K;
+        end
     end
 end

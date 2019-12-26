@@ -26,7 +26,7 @@ CONF.note = 'DebugNote';
 CONF.picID = '1779';
 CONF.prefISI = 0.04;
 % prefISIFs 取决于 prefISI，dialogLoad 会自动设置其值，请勿在此修改
-CONF.prefISIFs = 1*1; 
+CONF.prefISIFs = 0; 
 
 %%%%%%%%%%%%% 实验参数和配置，此处定义  %%%%%%%%%%%%
 CONF.ISI_INTRO= fullfile('assert','part1_intro.png');
@@ -57,6 +57,7 @@ if CONF.debug
 	CONF.participartRelex = 1;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.5;
+	CONF.repKNeed = [5];
 else
 	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 	CONF.learnTakeIsiNeedFs = [2, 3];
@@ -67,11 +68,11 @@ else
 	CONF.participartRelex = 60;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
+	CONF.repKNeed = [5, 6, 7];
 end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult
 % when ISI = 10, the segregation effect is best, but the integration is difficult
-CONF.flashcardsRepetitionK = 5/1;
 CONF.stimulateDuration = 0.033;
 CONF.stimulateDurationFs = 1;
 CONF.beforeMaskDelayFs = 5;

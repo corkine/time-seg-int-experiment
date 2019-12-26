@@ -1,5 +1,5 @@
 function [SCR, EXP] = runNumSeeker(SCR, EXP, CONF)
-% RUNNUMSEEKER 寻找最佳 NUM 的实验 Trial 序列，传入参数 w 为 Window PTR，
+% RUNNUMSEEKER 寻找最佳 NUM 的实验 Trial 序列
 %
 %   [ADD] EXP.segStartTime, EXP.intStartTime, Stimuli.maskOnsetReal, Stimuli.maskOffSetReal
 %   prepareMaterial 
@@ -14,9 +14,8 @@ duration = CONF.stimulateDurationFs * SCR.frameDuration;
 beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
 beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
 maskDuration = CONF.maskDurationFs * SCR.frameDuration;
-% TODO: 更改 prefISI 的来源，由输入定义
 prefISI = CONF.prefISIFs * SCR.frameDuration;
-repetitionK = CONF.flashcardsRepetitionK;
+repetitionK = EXP.flashcardsRepetitionK;
 
 isLearn = EXP.isLearn;
 isSeg = EXP.isSeg;
@@ -39,7 +38,7 @@ Stimuli = initMask(SCR, CONF);
 % 开始循环呈现 trial
 Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
 
-lastOffSet = GetSecs;	
+lastOffSet = GetSecs;
 C = 1;
 while (C - 1 < trialsCount)
 
@@ -93,8 +92,7 @@ end
 
 function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 	% 从 pics 文件夹加载图片，并且随机化，创建纹理，同时随机化 ISI，分配给 trials，
-	% 将结果保存在 EXP.pictures, isiWithRepeat 中，返回需要下一步使用的 textures 
-	% 和 trialsCount，以及更改后的 EXP
+	% 将结果保存在 EXP.pictures, 返回需要下一步使用的 textures 和 trialsCount，以及更改后的 EXP
 	%
 	%   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime，EXP.usedData
 
