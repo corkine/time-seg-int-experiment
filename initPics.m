@@ -21,7 +21,7 @@ row = CONF.cheeseRow;
 wid = CONF.cheeseGridWidth;
 picPath = CONF.picFolder;
 jarPath = CONF.stimulateJarFile;
-count = CONF.repeatTrial * length(CONF.isiNeed);
+count = CONF.repeatTrial * length(CONF.isiNeedFs);
 currentDir = pwd;
 cd(fullfile(currentDir,picPath));
 try

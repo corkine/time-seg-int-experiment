@@ -26,7 +26,9 @@ configLoad.m 函数提供了一些基本配置逻辑，其被主脚本 main.m �
 
 > 默认生成好了一套刺激供 Debug 使用：pics/1779，其文件名在 configLoad 中配置，在 debug 模式或者不指定 picId 情况下，默认使用这些刺激图片和元信息。
 
-> 生成图片和元信息供被试使用，只需要运行 initPics 命令，然后生成即可，调用 main.m 的时候，设置 configLoad 中的 debug 为 false，然后在对话框中输入 picsId 即可为被试使用此刺激。
+> 生成图片和元信息供被试使用，只需要运行 initPics 命令，然后生成即可，注意，在运行之前重写 configLoad.m 中 CONF.debug 为你需要的值，一般设置为 false 可满足大多数使用。
+
+> 调用 main.m 的时候，设置 configLoad 中的 debug 为 false，然后在对话框中输入 picsId 即可为被试使用此刺激。
 
 ## 结果说明
 
