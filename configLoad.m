@@ -49,13 +49,13 @@ if CONF.debug
 	CONF.isiNeedFs = [0, 1, 2];
 	CONF.learnTakeIsiNeedFs = [0, 1];
 	CONF.numberNeed = [2, 6];
-	CONF.learnTakeNumberNeed = [2];
+	CONF.learnTakeNumberNeed = 2;
 	CONF.repeatTrial = 2;
 	CONF.learnRepeatTrial = 2;
 	CONF.participartRelex = 1;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.5;
-	CONF.repKNeed = [5];
+	CONF.repKNeed = 5;
 else
 	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 	CONF.learnTakeIsiNeedFs = [2, 3];
