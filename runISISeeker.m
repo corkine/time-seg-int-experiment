@@ -15,7 +15,7 @@ duration = CONF.stimulateDurationFs * SCR.frameDuration;
 beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
 beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
 maskDuration = CONF.maskDurationFs * SCR.frameDuration;
-repetitionK = EXP.flashcardsRepetitionK;
+repetitionK = EXP.usedK;
 
 EXP.isiNeed = CONF.isiNeedFs * SCR.frameDuration;
 EXP.learnTakeIsiNeed = CONF.learnTakeIsiNeedFs * SCR.frameDuration;
@@ -46,6 +46,7 @@ while (C - 1 < trialsCount)
 
     thisTrialISI = EXP.isiWithRepeat(C);
     currentNum = EXP.pictures(C,4);
+    currentNum = currentNum{1};
 
     fprintf('%-20s - %d %s Trial: ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
             C, trialMark, thisTrialISI * 1000, EXP.pictures{C, 3});
@@ -211,8 +212,7 @@ function [answerRight, lastOffSet] = waitForRectChoose(w, last_offset, vblSlack,
 	end
 
 	lastOffSet = Screen('Flip',w);
-
 	fprintf('%-20s Get Response %d [Right is %d] and is Right? %d!\n', '[SEEKER][ANSWER]',...
 			response, rightAnswer, answerRight);
-	ListenChar(0);
+	ListenChar(0); 
 end

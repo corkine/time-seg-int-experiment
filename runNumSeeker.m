@@ -15,7 +15,7 @@ beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
 beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
 maskDuration = CONF.maskDurationFs * SCR.frameDuration;
 prefISI = CONF.prefISIFs * SCR.frameDuration;
-repetitionK = EXP.flashcardsRepetitionK;
+repetitionK = EXP.usedK;
 
 isLearn = EXP.isLearn;
 isSeg = EXP.isSeg;

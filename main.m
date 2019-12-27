@@ -1,5 +1,5 @@
 % 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语，变量更改如下所示：
-% EXP_S, EXP_S_EX, EXP_I, EXP_I_EX, EXP.flashcardsRepetitionK
+% EXP_S, EXP_S_EX, EXP_I, EXP_I_EX, EXP.usedK
 % dialogLoad
 %   [ADD] CONF.seekForISI, name, gender, note, startTime, prefISI
 % initApplication
@@ -202,7 +202,17 @@ function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
     if CONF.useUnlimitLearn
         while true
             EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn);
-            a = EXP_SPEC.answers;
+            % 获取每个 k 选项的 answers, 之后累积成为 a
+            repKNeed = CONF.repKNeed;
+            a = zeros(length(EXP_SPEC.("k" + repKNeed(1)).answers) * length(repKNeed),1) * -1;
+            aIndex = 1;
+            for k = repKNeed
+                kAnswers = EXP_SPEC.("k" + k).answers;
+                for i = 1:length(kAnswers)
+                    a(aIndex) = kAnswers(i);
+                    aIndex = aIndex + 1;
+                end
+            end
             acc = length(a(a(:,1) == 1)) / length(a);
             if acc >= CONF.minCurrent
                 fprintf('%-20s ACC is %2.2f...\n', '[MAIN][SEG][LEARN]', acc);
@@ -264,17 +274,19 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     % 针对 ISI 和 NUM Seeker 分别遍历 K 次试验
     if CONF.seekForISI
         for k = repKNeed
-            fprintf('%-20s System will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
-            EXP_SPEC.flashcardsRepetitionK = k;
+            fprintf('%-20s SystEXPem will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
+            EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runISISeeker(SCR, EXP_SPEC, CONF);
-            EXP_SPEC.data{k} = EXP_SPEC_K;
+            EXP_SPEC_K.usedK = k;
+            EXP_SPEC.("k" + k) = EXP_SPEC_K;
         end
     else 
         for k = repKNeed
             fprintf('%-20s System will Use repK %1.3f\n','[MAIN][NUM][SET-K]',k);
-            EXP_SPEC.flashcardsRepetitionK = k;
+            EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runNumSeeker(SCR, EXP_SPEC, CONF);
-            EXP_SPEC.data{k} = EXP_SPEC_K;
+            EXP_SPEC.("k" + k) = EXP_SPEC_K;
         end
     end
+    EXP_SPEC = rmfield(EXP_SPEC,'usedK');
 end

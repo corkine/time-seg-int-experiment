@@ -19,7 +19,7 @@ CONF.targetNumber = 6;
 CONF.cheeseRow = 8;
 CONF.cheeseGridWidth = 60;
 
-CONF.seekForISI = 0;
+CONF.seekForISI = 1;
 CONF.name = 'DebugName';
 CONF.gender = 0;
 CONF.note = 'DebugNote'; 
