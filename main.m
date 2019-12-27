@@ -274,7 +274,7 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     % 针对 ISI 和 NUM Seeker 分别遍历 K 次试验
     if CONF.seekForISI
         for k = repKNeed
-            fprintf('%-20s SystEXPem will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
+            fprintf('%-20s System will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
             EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runISISeeker(SCR, EXP_SPEC, CONF);
             EXP_SPEC_K.usedK = k;
