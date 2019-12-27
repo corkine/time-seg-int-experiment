@@ -14,7 +14,7 @@ duration = CONF.stimulateDurationFs * SCR.frameDuration;
 beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
 beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
 maskDuration = CONF.maskDurationFs * SCR.frameDuration;
-prefISI = CONF.prefISIFs * SCR.frameDuration;
+prefISI = EXP.prefISIFs * SCR.frameDuration;
 repetitionK = EXP.usedK;
 
 isLearn = EXP.isLearn;
@@ -44,8 +44,8 @@ while (C - 1 < trialsCount)
 
 	currentNum = EXP.numberWithRepeat(C,:);
 
-	fprintf('%-20s - %d %s Trial: Number %d, prefISI %1.0f ms, Image %s\n', '[SEEKER][PREPARE]', ...
-			C, trialMark, currentNum ,prefISI * 1000, EXP.pictures{C, 3});
+	fprintf('%-20s -- %d %s Trial, repK %1.0f, Number %d, prefISI %1.0f ms, Image %s\n', '[SEEKER][PREPARE]', ...
+			C, trialMark, repetitionK, currentNum ,prefISI * 1000, EXP.pictures{C, 3});
 	
 	t01 = textures{C, 1};
 	t02 = textures{C, 2};
@@ -129,7 +129,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 		for i = 1: repeatTrial
 			picSN = picSNs(i);
 			commonFile = sprintf("sti_%d_%d_%d_", number, CONF.cheeseRow, picSN);
-			common = fullfile(CONF.picFolder, CONF.picID, commonFile);
+			common = fullfile(CONF.picFolder, EXP.picID, commonFile);
 			pictures{pictureIndex,1} = char(common + "head.png");
 			pictures{pictureIndex,2} = char(common + "tail.png");
 			pictures{pictureIndex,3} = char(common + "fusion.png");

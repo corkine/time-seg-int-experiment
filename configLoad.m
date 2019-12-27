@@ -5,10 +5,11 @@ function CONF = configLoad()
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
 CONF.debug = true;
-% 在正式实验前，去除这里的标记以让程序同步刷新
-CONF.noDebugSkipSyncTest = true;
+CONF.noDebugSkipSyncTest = true; % 在正式实验前，去除这里的标记以让程序同步刷新
+CONF.defaultSeekForISI = 1;
+
 if CONF.debug 
-	CONF.screenSize = [10,10,800,600];
+	CONF.screenSize = [10,10,900,700];
 else
 	CONF.screenSize = [];
 end
@@ -19,14 +20,11 @@ CONF.targetNumber = 6;
 CONF.cheeseRow = 8;
 CONF.cheeseGridWidth = 60;
 
-CONF.seekForISI = 1;
-CONF.name = 'DebugName';
-CONF.gender = 0;
-CONF.note = 'DebugNote'; 
-CONF.picID = '1779';
-CONF.prefISI = 0.04;
-% prefISIFs 取决于 prefISI，dialogLoad 会自动设置其值，请勿在此修改
-CONF.prefISIFs = 0; 
+CONF.defaultName = 'DebugName';
+CONF.defaultGender = 0;
+CONF.defaultNote = 'DebugNote'; 
+CONF.defaultPicID = '1779';
+CONF.defaultISI = 0.04;
 
 %%%%%%%%%%%%% 实验参数和配置，此处定义  %%%%%%%%%%%%
 CONF.ISI_INTRO= fullfile('assert','part1_intro.png');
@@ -64,7 +62,7 @@ else
 	CONF.numberNeed = [2, 3, 4, 5, 6];
 	CONF.learnTakeNumberNeed = [2, 4];
 	CONF.repeatTrial = 20;
-	CONF.learnRepeatTrial = 10;
+	CONF.learnRepeatTrial = 2;
 	CONF.participartRelex = 60;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;

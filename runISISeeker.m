@@ -48,8 +48,8 @@ while (C - 1 < trialsCount)
     currentNum = EXP.pictures(C,4);
     currentNum = currentNum{1};
 
-    fprintf('%-20s - %d %s Trial: ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
-            C, trialMark, thisTrialISI * 1000, EXP.pictures{C, 3});
+    fprintf('%-20s -- %d %s Trial, repK %1.0f, ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
+            C, trialMark, repetitionK, thisTrialISI * 1000, EXP.pictures{C, 3});
     
     t01 = textures{C, 1};
     t02 = textures{C, 2};
@@ -134,7 +134,7 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
                 % 再从中获取 repeatTrial 行图片
                 picSN = picSNs(i);
                 commonFile = sprintf("sti_%d_%d_%d_", number, CONF.cheeseRow, picSN);
-                common = fullfile(CONF.picFolder, CONF.picID, commonFile);
+                common = fullfile(CONF.picFolder, EXP.picID, commonFile);
                 pictures{pictureIndex,1} = char(common + "head.png");
                 pictures{pictureIndex,2} = char(common + "tail.png");
                 pictures{pictureIndex,3} = char(common + "fusion.png");

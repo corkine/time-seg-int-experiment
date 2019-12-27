@@ -1,7 +1,7 @@
 % 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语，变量更改如下所示：
 % EXP_S, EXP_S_EX, EXP_I, EXP_I_EX, EXP.usedK
-% dialogLoad
-%   [ADD] CONF.seekForISI, name, gender, note, startTime, prefISI
+% dexpLoad
+%   [ADD] prefISI、startTime、seekForISI、name、gender、note、picId
 % initApplication
 %   [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
 % initScreen
@@ -15,16 +15,16 @@
 %  以备 debug 模式使用。此数据和图片顺序对应，包含了图片中的点阵关键信息。
 
 CONF = configLoad();
-CONF = dialogLoad(CONF);
-[SCR, EXP] = initApplication(CONF); 
+EXP = struct();
+EXP = expLoad(CONF, EXP);
+[SCR, EXP] = initApplication(CONF, EXP); 
 SCR = initScreen(SCR);
-if ~CONF.seekForISI
-    CONF = computePrefIsiFs(SCR, CONF);
+if ~EXP.seekForISI
+    EXP = computePrefIsiFs(SCR, EXP);
 end
 
 try
-    % [SCR, EXP] = runTest(SCR, EXP, CONF, w);
-    if CONF.seekForISI
+    if EXP.seekForISI
         totalIntro = CONF.ISI_INTRO;
     else
         totalIntro = CONF.NUM_INTRO;
@@ -65,7 +65,7 @@ try
     DATA.intData = EXP_I;
     DATA.scrInfo = SCR;
     DATA.conf = CONF;
-    fileName = sprintf('%s@%s.mat',CONF.name, CONF.startTime);
+    fileName = sprintf('%s@%s.mat',EXP.name, EXP.startTime);
     save(fileName,'DATA');
 
 catch exception
@@ -74,7 +74,7 @@ end
 
 closeScreen(SCR.window);
 
-function [SCR, EXP] = initApplication(CONF)
+function [SCR, EXP] = initApplication(CONF, EXP)
     % 初始化应用程序，包括应用 DEBUG 模式，设置默认 EXP 值，
     % 调用 Java/MAT 文件获取图片列表对应的数据信息。
     % [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
@@ -94,8 +94,8 @@ function [SCR, EXP] = initApplication(CONF)
         SCR.debug = false;
         SCR.screenSize = [];
     end
-    fprintf('%-20s Load Data from %s/%s\n','[MAIN]',CONF.picID, 'data.mat');
-    res = load(fullfile('pics',CONF.picID,'data.mat'));
+    fprintf('%-20s Load Data from %s/%s\n','[MAIN]',EXP.picID, 'data.mat');
+    res = load(fullfile('pics',EXP.picID,'data.mat'));
     EXP.data = res.data;
     EXP.isSeg = false;
     EXP.isLearn = false;
@@ -120,10 +120,10 @@ function SCR = initScreen(SCR)
     Priority(2); % request the maximum amount of CPU time
 end
 
-function CONF = computePrefIsiFs(SCR, CONF)
-    CONF.prefISIFs = CONF.prefISI / SCR.frameDuration;
-    fprintf('%-20s Setting CONF.prefISIFs %1.2f by CONF.prefISI %1.0f ms and SCR.frameDuration %1.0f ms\n', ...
-            '[MAIN]', CONF.prefISIFs, CONF.prefISI * 1000, SCR.frameDuration * 1000);
+function EXP = computePrefIsiFs(SCR, EXP)
+    EXP.prefISIFs = EXP.prefISI / SCR.frameDuration;
+    fprintf('%-20s Setting EXP.prefISIFs %1.2f by EXP.prefISI %1.0f ms and SCR.frameDuration %1.0f ms\n', ...
+            '[MAIN]', EXP.prefISIFs, EXP.prefISI * 1000, SCR.frameDuration * 1000);
 end
 
 function closeScreen(w)
@@ -231,14 +231,14 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
 % 初始化指定的条件，根据 LearnOrNot、SegOrInt、IsiOrNum 遍历 K 调用 seeker 显示刺激，收集数据
     if isLearn
         if isSeg
-            if CONF.seekForISI
+            if EXP.seekForISI
                 intro = CONF.ISI_INTRO_S_EX;
             else
                 intro = CONF.NUM_INTRO_S_EX;
             end
             fprintf('%-20s System will First Run SegISISeeker...\n','[MAIN][SEG][LEARN]');
         else
-            if CONF.seekForISI
+            if EXP.seekForISI
                 intro = CONF.ISI_INTRO_I_EX;
             else
                 intro = CONF.NUM_INTRO_I_EX;
@@ -247,14 +247,14 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
         end
     else
         if isSeg
-            if CONF.seekForISI
+            if EXP.seekForISI
                 intro = CONF.ISI_INTRO_S;
             else
                 intro = CONF.NUM_INTRO_S;
             end
             fprintf('%-20s System will First Run SegISISeeker...\n','[MAIN][SEG]');
         else
-            if CONF.seekForISI
+            if EXP.seekForISI
                 intro = CONF.ISI_INTRO_I;
             else
                 intro = CONF.NUM_INTRO_I;
@@ -272,21 +272,23 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     % 随机化需要重复的 K 次
     repKNeed = Shuffle(CONF.repKNeed);
     % 针对 ISI 和 NUM Seeker 分别遍历 K 次试验
-    if CONF.seekForISI
+    if EXP.seekForISI
         for k = repKNeed
             fprintf('%-20s System will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
             EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runISISeeker(SCR, EXP_SPEC, CONF);
-            EXP_SPEC_K.usedK = k;
+            EXP_SPEC_K = rmfield(EXP_SPEC_K, {'name','gender','note','startTime','picID','prefISI','seekForISI'});
             EXP_SPEC.("k" + k) = EXP_SPEC_K;
+            EXP_SPEC = rmfield(EXP_SPEC,'usedK');
         end
     else 
         for k = repKNeed
             fprintf('%-20s System will Use repK %1.3f\n','[MAIN][NUM][SET-K]',k);
             EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runNumSeeker(SCR, EXP_SPEC, CONF);
+            EXP_SPEC_K = rmfield(EXP_SPEC_K, {'name','gender','note','startTime','picID','prefISI','seekForISI'});
             EXP_SPEC.("k" + k) = EXP_SPEC_K;
+            EXP_SPEC = rmfield(EXP_SPEC,'usedK');
         end
     end
-    EXP_SPEC = rmfield(EXP_SPEC,'usedK');
 end
