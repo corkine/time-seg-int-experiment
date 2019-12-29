@@ -4,7 +4,7 @@ function CONF = configLoad()
 
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
-CONF.debug = true;
+CONF.debug = false;
 CONF.noDebugSkipSyncTest = true; % 在正式实验前，去除这里的标记以让程序同步刷新
 CONF.defaultSeekForISI = 1;
 
@@ -62,7 +62,7 @@ else
 	CONF.numberNeed = [2, 3, 4, 5, 6];
 	CONF.learnTakeNumberNeed = [2, 4];
 	CONF.repeatTrial = 20;
-	CONF.learnRepeatTrial = 2;
+	CONF.learnRepeatTrial = 3;
 	CONF.participartRelex = 60;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
