@@ -1,15 +1,19 @@
-% 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语，变量更改如下所示：
-% EXP_S, EXP_S_EX, EXP_I, EXP_I_EX, EXP.usedK
-% dexpLoad
-%   [ADD] prefISI、startTime、seekForISI、name、gender、note、picId
-% initApplication
-%   [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
-% initScreen
-%   [ADD] SCR.window, windowRect, frameDuration, vblSlack, x, y  
-% runISISeeker
-%   [ADD] EXP.segStartTime, EXP.intStartTime
-%   prepareMaterial 
-%       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat[, EXP.userAnswers]
+% 本脚本用来执行整个实验流程，包括刺激的生成、试次的编排、休息、指导语：
+% 数据结构如下所示：
+%   DATA 保存所有数据 -- seg、intData 保存 Seg、Int 数据 -- k{n} 保存 k 在某一个水平下数据 -- 
+%   EXP 某一个 k 水平下不同操纵自变量的数据，对于 seekISI 而言，是 isi，对于 seekNum 而言，是 num
+% 变量更改如下所示：
+%   seg/intData.k{n}, EXP.usedK, 仅在 seekForNum 条件下注入：EXP.prefISI 和 EXP.prefISIFs
+%   dexpLoad
+%       [ADD] prefISI、startTime、seekForISI、name、gender、note、picId
+%   initApplication
+%       [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
+%   initScreen
+%       [ADD] SCR.window, windowRect, frameDuration, vblSlack, x, y  
+%   runISISeeker
+%       [ADD] EXP.segStartTime, EXP.intStartTime
+%       prepareMaterial 
+%           [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat[, EXP.userAnswers]
 %
 %  请勿直接调用 Psy4J.jar 生成图片，通过此函数调用的 Psy4J.jar 会将结果保存到 debug_data.mat 中
 %  以备 debug 模式使用。此数据和图片顺序对应，包含了图片中的点阵关键信息。
@@ -21,6 +25,8 @@ EXP = expLoad(CONF, EXP);
 SCR = initScreen(SCR);
 if ~EXP.seekForISI
     EXP = computePrefIsiFs(SCR, EXP);
+else 
+    EXP = rmfield(EXP,'prefISI');
 end
 
 try
@@ -203,7 +209,11 @@ function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
         while true
             EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn);
             % 获取每个 k 选项的 answers, 之后累积成为 a
-            repKNeed = CONF.repKNeed;
+            if ~isLearn
+                repKNeed = CONF.repKNeed;
+            else
+                repKNeed = CONF.learnRepKNeed;
+            end
             a = zeros(length(EXP_SPEC.("k" + repKNeed(1)).answers) * length(repKNeed),1) * -1;
             aIndex = 1;
             for k = repKNeed
@@ -227,7 +237,7 @@ function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
     end
 end
 
-function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
+function EXP_SPEC_OUT = initCondition(SCR, EXP, CONF, isSeg, isLearn)
 % 初始化指定的条件，根据 LearnOrNot、SegOrInt、IsiOrNum 遍历 K 调用 seeker 显示刺激，收集数据
     if isLearn
         if isSeg
@@ -270,25 +280,39 @@ function EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn)
     EXP_SPEC.isSeg = isSeg;
     EXP_SPEC.isLearn = isLearn;
     % 随机化需要重复的 K 次
-    repKNeed = Shuffle(CONF.repKNeed);
+    if ~isLearn
+        repKNeed = Shuffle(CONF.repKNeed);
+    else
+        repKNeed = Shuffle(CONF.learnRepKNeed);
+    end
     % 针对 ISI 和 NUM Seeker 分别遍历 K 次试验
+
+    % 由于 EXP_SPEC 在 k 变化的循环中不断的将自身复制给下一个 k 字段，
+    % 因此浪费内存，所以设置一个输出 struct，将所有 k{n} 写入到此 struct 中进行输出
+    EXP_SPEC_OUT = EXP_SPEC; 
+    % 对于 seekForISI 或者 seekForNum，需要删除的字段不同
+    if EXP_SPEC.seekForISI
+        fields = {'name','gender','note','startTime','picID','seekForISI'};
+    else
+        fields = {'name','gender','note','startTime','picID','prefISI','seekForISI'};
+    end
     if EXP.seekForISI
         for k = repKNeed
             fprintf('%-20s System will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
             EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runISISeeker(SCR, EXP_SPEC, CONF);
-            EXP_SPEC_K = rmfield(EXP_SPEC_K, {'name','gender','note','startTime','picID','prefISI','seekForISI'});
-            EXP_SPEC.("k" + k) = EXP_SPEC_K;
-            EXP_SPEC = rmfield(EXP_SPEC,'usedK');
+            % 对于 ISISeeker 而言，EXP_SPEC 即是传入的 EXP struct，其应该包含了所有信息
+            % 但是对于我们而言，这部分信息在不同的 k{n} 中重复，因此仅保留 EXP_SPEC_OUT 中的数据即可，而将 k{n} 字段中的值删去。
+            EXP_SPEC_K = rmfield(EXP_SPEC_K, fields);
+            EXP_SPEC_OUT.("k" + k) = EXP_SPEC_K;
         end
     else 
         for k = repKNeed
             fprintf('%-20s System will Use repK %1.3f\n','[MAIN][NUM][SET-K]',k);
             EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runNumSeeker(SCR, EXP_SPEC, CONF);
-            EXP_SPEC_K = rmfield(EXP_SPEC_K, {'name','gender','note','startTime','picID','prefISI','seekForISI'});
-            EXP_SPEC.("k" + k) = EXP_SPEC_K;
-            EXP_SPEC = rmfield(EXP_SPEC,'usedK');
+            EXP_SPEC_K = rmfield(EXP_SPEC_K, fields);
+            EXP_SPEC_OUT.("k" + k) = EXP_SPEC_K;
         end
     end
 end

@@ -4,7 +4,7 @@ function CONF = configLoad()
 
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
-CONF.debug = false;
+CONF.debug = true;
 CONF.noDebugSkipSyncTest = true; % 在正式实验前，去除这里的标记以让程序同步刷新
 CONF.defaultSeekForISI = 1;
 
@@ -55,7 +55,8 @@ if CONF.debug
 	CONF.participartRelex = 1;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.5;
-	CONF.repKNeed = 5;
+	CONF.repKNeed = [5, 6];
+	CONF.learnRepKNeed = 5;
 else
 	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5, 6, 7, 8];
 	CONF.learnTakeIsiNeedFs = [2, 3];
@@ -67,6 +68,7 @@ else
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
 	CONF.repKNeed = [5, 6, 7];
+	CONF.learnRepKNeed = [5, 6, 7];
 end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult
