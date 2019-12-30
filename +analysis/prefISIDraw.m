@@ -18,7 +18,6 @@ function allData = prefISIDraw(DATA)
 	figure('Name','prefISI Result');
 	hold on
 	for isSeg = [1 0]
-		disp("For Seg? " + isSeg);
 		for ki = 1:length(repKNeed)
 			k = repKNeed(ki);
 			if isSeg
@@ -62,20 +61,34 @@ function allData = prefISIDraw(DATA)
 	hold off
 	allData.isi = isiUsed;
 	allData.k = repKNeed;
-
-	figure('Name','prefISI Curve Fitting')
+	
+	% 拟合曲线
+	
+	allData.segFit = cell(length(repKNeed),1);
+	allData.intFit = cell(length(repKNeed),1);
+	degree = 'poly2';
+	figure('Name',sprintf('prefISI Curve Fitting - %s', degree))
 	hold on
 	for isSeg = [1, 0]
 		if isSeg
 			ys = allData.seg;
+			data = allData.segFit;
 		else
 			ys = allData.int;
+			data = allData.intFit;
 		end
 		for ki = 1: length(repKNeed)
 			y = ys(ki,:);
-			model = fitlm(isiUsed * 1000, y, 'poly5');
+			% 注意，这个模型计算使用的是 ms 而非 s
+			model = fitlm(isiUsed * 1000, y, degree);
+			data{ki,1} = model;
 			p = plot(model);
 			p(2).LineWidth = 2;
+		end
+		if isSeg
+			allData.segFit = data;
+		else
+			allData.intFit = data;
 		end
 	end
 	
@@ -87,5 +100,63 @@ function allData = prefISIDraw(DATA)
 	set(get(gca, 'XLabel'), 'String', 'ISI ms');
 	set(get(gca, 'YLabel'), 'String', 'CorrectRate %');
 	hold off
+
+	fitDataX = min(isiUsed):0.001:max(isiUsed);
+	segDataAll = zeros(length(repKNeed), length(fitDataX));
+	intDataAll = zeros(length(repKNeed), length(fitDataX));
+	diffDataAll = zeros(length(repKNeed), length(fitDataX));
+	minDataAll = zeros(length(repKNeed), 3);
+	for ki = 1: length(repKNeed)
+		k = repKNeed(ki);
+		segDataY = zeros(1, length(fitDataX));
+		intDataY = zeros(1, length(fitDataX));
+		diffDataY = zeros(1, length(fitDataX));
+		segModel = allData.segFit{ki,1};
+		intModel = allData.intFit{ki,1};
+		for xi = 1: length(fitDataX)
+			x = fitDataX(xi);
+			sy = predict(segModel, x * 1000);
+			iy = predict(intModel, x * 1000);
+			dy = abs(sy - iy);
+			segDataY(1,xi) = sy;
+			intDataY(1,xi) = iy;
+			diffDataY(1,xi) = dy;
+		end
+		segDataAll(ki,:) = segDataY;
+		intDataAll(ki,:) = intDataY;
+		diffDataAll(ki,:) = diffDataY;
+		[minIsiDiffValue, minIsiIndex] = min(diffDataY);
+		equalIsiSegValue = segDataY(1,minIsiIndex);
+		equalIsiIntValue = intDataY(1,minIsiIndex);
+		fprintf('For k= %d, equalIsiDiffValue is %1.3fs, seg is %1.3fs, int is %1.3fs\n', ...
+				k, minIsiDiffValue, equalIsiSegValue, equalIsiIntValue);
+		minDataAll(ki,1) = minIsiDiffValue;
+		minDataAll(ki,2) = equalIsiSegValue;
+		minDataAll(ki,3) = equalIsiIntValue;
+	end
+	allData.diff = minDataAll;
+	allData.usedXPredict = fitDataX;
+	allData.segPredict = segDataAll;
+	allData.intPredict = intDataAll;
+	allData.diffPredict = diffDataAll;
+
+	figure('Name','prefISI Equal ISI Seek Result')
+	hold on
+	xs = allData.usedXPredict;
+	for ki = 1: length(allData.k)
+		segYs = allData.segPredict(ki,:);
+		intYs = allData.intPredict(ki,:);
+		plot(xs * 1000, segYs);
+		plot(xs * 1000, intYs);
+	end
+
+	hold off
+	legendSeg = "Seg k=" + repKNeed;
+	legendInt = "Int k=" + repKNeed;
+	legend([legendSeg legendInt]);
+	title = sprintf('prefISI Result for %s@%s', DATA.segData.name, DATA.segData.picID);
+	set(get(gca, 'Title'), 'String', title);
+	set(get(gca, 'XLabel'), 'String', 'ISI ms');
+	set(get(gca, 'YLabel'), 'String', 'CorrectRate %');
 
 end
