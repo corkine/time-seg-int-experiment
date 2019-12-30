@@ -40,6 +40,10 @@ DATA struct 包含 segData、intData 信息，这是主要的数据，此外还�
 
 segData 对应分离的 DATA struct，intData 对应整合的 DATA struct。其中，data 标示了所有刺激（不管用到还是没用到的）的信息，比如内含的判断的点的个数（负数表示），图片标号（用于对应图片文件），以及图片整合后的阵列信息（方便判断对错）。isSeg 标示是否是分离数据，isLearn 标示是否是学习数据，segStartTime 标示数据收集开始的时间，pictures 标示刺激的图片文件（不一定全部使用），isiWithRepeat 标示 trials 对应的 isi，answers 标示 trials 对应的被试的回答是否正确，actionTime 标示 trials 对应的反应时（单位为秒，从最后一帧消失开始计时），usedData 标示 trials 使用到的 data 部分。
 
+数据分析程序在 analysis 目录下：
+
+![](http://static2.mazhangjing.com/20191230/05228dd_WX20191230-200024.png)
+
 
 ## 最佳实践
 
