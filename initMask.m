@@ -2,7 +2,7 @@ function [Stimuli] = initMask(SCR, CONF)
 % 计算并且生成随机黑白 Mask
 
     Stimuli.ObjAreaSizeP = CONF.cheeseRow * CONF.cheeseGridWidth;
-    Stimuli.MaskRectSizeP = CONF.cheeseGridWidth;
+    Stimuli.MaskRectSizeP = CONF.cheeseGridWidth / 5;
 
     %% masks 
     %此处mask暂时是大小相同、颜色随机的颜色方块
