@@ -69,3 +69,9 @@ segData 对应分离的 DATA struct，intData 对应整合的 DATA struct。其�
 2. 测试 main > initCondition 是否输出正确的数据
 	- 包含数据 k 是否没有嵌套（需完整走一遍 debug 测试）
 	- 包含是否数据完全输出没有报错（需完整走一遍 debug 模式）
+
+## TODO
+
+修改 prefISI 20 个重复为 10 个
+修改 JAVA 接口输出刺激方式
+prefISI 和 prefNum 修改为 full-cross
