@@ -128,17 +128,24 @@ function allData = prefISIDraw(DATA)
 		[minIsiDiffValue, minIsiIndex] = min(diffDataY);
 		equalIsiSegValue = segDataY(1,minIsiIndex);
 		equalIsiIntValue = intDataY(1,minIsiIndex);
-		fprintf('For k= %d, equalIsiDiffValue is %1.3fs, seg is %1.3fs, int is %1.3fs\n', ...
-				k, minIsiDiffValue, equalIsiSegValue, equalIsiIntValue);
+		equalXValue = fitDataX(minIsiIndex);
+		fprintf('For k= %d, equalIsiDiff cr is %1.3f, seg cr is %1.3f, int cr is %1.3f, equal ISI is %1.3fs\n', ...
+				k, minIsiDiffValue, equalIsiSegValue, equalIsiIntValue, equalXValue);
+
 		minDataAll(ki,1) = minIsiDiffValue;
 		minDataAll(ki,2) = equalIsiSegValue;
 		minDataAll(ki,3) = equalIsiIntValue;
+		minDataAll(ki,4) = equalXValue;
 	end
-	allData.diff = minDataAll;
+	allData.samePoint = minDataAll;
 	allData.usedXPredict = fitDataX;
 	allData.segPredict = segDataAll;
 	allData.intPredict = intDataAll;
 	allData.diffPredict = diffDataAll;
+	[row, ~] = size(minDataAll);
+	finalResult = sum(minDataAll,1)/row;
+	allData.prefPercent = (finalResult(2) + finalResult(3))/2;
+	allData.prefISI = sum(minDataAll(:,4))/row;
 
 	figure('Name','prefISI Equal ISI Seek Result')
 	hold on
