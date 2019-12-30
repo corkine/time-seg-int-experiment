@@ -41,9 +41,6 @@ CONF.NUM_INTRO_I_EX = fullfile('assert','part2_intro_i_ex.png');
 CONF.GRAY_IMAGE = fullfile('assert','gray.jpg');
 
 CONF.crossSize = 50;
-CONF.crossDuration = 1;
-CONF.feedbackSecs = 0.5;
-
 
 if CONF.debug
 	CONF.isiNeedFs = [0, 1, 2];
@@ -73,7 +70,11 @@ end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult
 % when ISI = 10, the segregation effect is best, but the integration is difficult
-CONF.stimulateDuration = 0.033;
+% CONF.stimulateDuration = 0.033; ·ÏÆú£¬Ê¹ÓÃ Fs ¼ÆËã
+% CONF.crossDuration = 1;
+% CONF.feedbackSecs = 0.5;
+CONF.crossDurationFs = 60;
+CONF.feedbackFs = 30;
 CONF.stimulateDurationFs = 1;
 CONF.beforeMaskDelayFs = 5;
 CONF.beforeRectChooseDelayFs = 5;

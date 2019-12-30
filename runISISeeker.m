@@ -15,6 +15,8 @@ duration = CONF.stimulateDurationFs * SCR.frameDuration;
 beforeMaskDelay = CONF.beforeMaskDelayFs * SCR.frameDuration;
 beforeRectChooseDelay = CONF.beforeRectChooseDelayFs * SCR.frameDuration;
 maskDuration = CONF.maskDurationFs * SCR.frameDuration;
+feedbackSecs = CONF.feedbackFs * SCR.frameDuration;
+crossDuration = CONF.crossDurationFs * SCR.frameDuration;
 repetitionK = EXP.usedK;
 
 EXP.isiNeed = CONF.isiNeedFs * SCR.frameDuration;
@@ -55,8 +57,8 @@ while (C - 1 < trialsCount)
     t02 = textures{C, 2};
 
     % 先呈现 cross
-    fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',CONF.crossDuration * 1000);
-    crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, CONF.crossDuration);
+    fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',crossDuration * 1000);
+    crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, crossDuration);
     % 循环 repetitionK 次呈现刺激
     Priority(2);
     K = 0; 
@@ -78,7 +80,7 @@ while (C - 1 < trialsCount)
     Priority(0);
     % 经过 beforeRectChooseDelay 后要求被试回答
     delayOffSet = WaitSecs(beforeRectChooseDelay);
-    [isRight, lastOffSet] = waitForRectChoose(w, delayOffSet, vblSlack, currentNum, needFeedback, CONF.feedbackSecs);
+    [isRight, lastOffSet] = waitForRectChoose(w, delayOffSet, vblSlack, currentNum, needFeedback, feedbackSecs);
     EXP.answers(C) = isRight;
     EXP.actionTime(C) = lastOffSet - delayOffSet;
     EXP.totalStiShowTime(C) = t2OffsetReal - stimuliOnset;
