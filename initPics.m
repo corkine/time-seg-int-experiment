@@ -21,14 +21,14 @@ row = CONF.cheeseRow;
 wid = CONF.cheeseGridWidth;
 picPath = CONF.picFolder;
 jarPath = CONF.stimulateJarFile;
-count = CONF.repeatTrial * length(CONF.isiNeedFs);
+count = int32(CONF.repeatTrial * length(CONF.isiNeedFs) / 5);
 currentDir = pwd;
 cd(fullfile(currentDir,picPath));
 try
 	javaaddpath(jarPath);
 	h = com.mazhangjing.time.MATLABHelper;
 	data = h.generatePicturesWithArgsInRandomFolder(...
-			debugMode, target, row, wid, count, 'sti', 'black','white');
+			debugMode, target, target, row, wid, count, 'sti', 'black','white');
 	folderString = javaMethod('folder','com.mazhangjing.time.MATLABHelper');
 	folderName = char(folderString);
 	fprintf('%-20s Saved Data to data.mat at folder %s\n','[CONFIG]', folderName);
