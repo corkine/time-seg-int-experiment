@@ -30,8 +30,10 @@ else
     needFeedback = false;
 end
 if isSeg
+    pictureNumberIndex = 4;
     trialMark = 'SEG';
 else
+    pictureNumberIndex = 5;
     trialMark = 'INT';
 end
 
@@ -47,14 +49,15 @@ C = 1;
 while (C - 1 < trialsCount)
 
     thisTrialISI = EXP.isiWithRepeat(C);
-    currentNum = EXP.pictures(C,4);
-    currentNum = currentNum{1};
-
-    fprintf('%-20s -- %d %s Trial, repK %1.0f, ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
-            C, trialMark, repetitionK, thisTrialISI * 1000, EXP.pictures{C, 3});
-    
     t01 = textures{C, 1};
     t02 = textures{C, 2};
+    pictureUsed = EXP.pictures{C, 3};
+    segNum = EXP.pictures{C, 4};
+    intNum = EXP.pictures{C, 5};
+    currentNum = EXP.pictures{C, pictureNumberIndex};
+
+    fprintf('%-20s -- %d %s Trial, seg %1.0f, int %1.0f, target %1.0f, repK %1.0f, ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
+            C, trialMark, segNum, intNum, currentNum, repetitionK, thisTrialISI * 1000, pictureUsed);
 
     % 先呈现 cross
     fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',crossDuration * 1000);
@@ -104,10 +107,11 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 获取 ISI
     if EXP.isLearn
         isiNeed = EXP.learnTakeIsiNeed;
-        repeatTrial = CONF.learnRepeatTrial / 4;
+        % 此处的 4 为 Seg-Int 0-1 0-0 1-1 1-0 四种情况
+        repeatTrial = ceil(CONF.learnRepeatTrial / 4);
     else
         isiNeed = EXP.isiNeed;
-        repeatTrial = CONF.repeatTrial / 4;
+        repeatTrial = ceil(CONF.repeatTrial / 4);
     end
  
     % 计时标记
@@ -121,9 +125,8 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     end
 
     % 获取图片
-    singleTrialsCount = length(isiNeed) * repeatTrial; % 0 和 1 每一个数值的 Trial 数
-    trialsCount = singleTrialsCount * 2; % 一共的 Trial 数
-    pictures = cell(trialsCount,3);
+    trialsCount = length(isiNeed) * repeatTrial * 4; % 4种具体条件在不同 ISI 条件下重复组成的所有试次数
+    pictures = cell(trialsCount,7);
     data = EXP.data;
     % 最终构造的包含 number 数字的重复 repeatTrial 次的 pictures Cell 的索引
     pictureIndex = 1;
@@ -133,20 +136,23 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
         % 先获取对应图片的所有可用数据，根据 data.mat 定义，
         % 每一行代表两帧刺激，第一列为 seg 数的负值，第二列为 int 数的负值，
         % 其余列为融合后的自上到下的每帧刺激，白色为 1 黑色为 0
-        picSNs = data(data(:,1) == -1 * segNumber && data(:,2) == -1 * intNumber, 2); %180*1
-        currentLine = data(data(:,1) == -1 * segNumber && data(:,2) == -1 * intNumber, :); %180*66
-        for i = 1 : repeatTrial / 4
+        targetPictures = data(data(:,1) == -1 * segNumber & data(:,2) == -1 * intNumber, :); %180*67
+        for i = 1 : repeatTrial
             for isi = isiNeed
-                % 再从中获取 repeatTrial 行图片
-                picSN = picSNs(i);
-                commonFile = sprintf("sti_%d_%d_%d_", number, CONF.cheeseRow, picSN);
+                targetPictures = Shuffle(targetPictures, 2);
+                targetLine = targetPictures(1,:);
+                picSN = targetLine(3);
+                commonFile = sprintf("sti_%d_%d_%d_%d_", segNumber, intNumber, CONF.cheeseRow, picSN);
                 common = fullfile(CONF.picFolder, EXP.picID, commonFile);
                 pictures{pictureIndex,1} = char(common + "head.png");
                 pictures{pictureIndex,2} = char(common + "tail.png");
                 pictures{pictureIndex,3} = char(common + "fusion.png");
-                pictures{pictureIndex,4} = number;
-                pictures{pictureIndex,5} = isi;
-                pictures{pictureIndex,6} = currentLine(i,:);
+                pictures{pictureIndex,4} = segNumber;
+                pictures{pictureIndex,5} = intNumber;
+                pictures{pictureIndex,6} = isi;
+                pictures{pictureIndex,7} = targetLine;
+                %修改此处索引注意修改 EXP.usedData，EXP.isiWithRepeat 定义，
+                %修改刺激呈现循环中 segNum 和 intNum, pictureUsed, t01, t02 以及 pictureNumberIndex 定义。
                 pictureIndex = pictureIndex + 1;
             end
         end
@@ -165,10 +171,10 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     end
 
     EXP.pictures = pictures;
-    EXP.isiWithRepeat = cell2mat(pictures(:,5));
+    EXP.isiWithRepeat = cell2mat(pictures(:,6));
+    EXP.usedData = cell2mat(pictures(:,7));
     EXP.answers = ones(trialsCount,1) * -1;
     EXP.actionTime = ones(trialsCount,1) * -1;
-    EXP.usedData = cell2mat(pictures(:,6));
     EXP.totalStiShowTime = ones(trialsCount,1) * -1;
 end
 

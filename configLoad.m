@@ -4,7 +4,7 @@ function CONF = configLoad()
 
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
-CONF.debug = false;
+CONF.debug = true;
 CONF.noDebugSkipSyncTest = true; % 在正式实验前，去除这里的标记以让程序同步刷新
 CONF.defaultSeekForISI = 1;
 
@@ -59,8 +59,11 @@ else
 	CONF.learnTakeIsiNeedFs = [2, 3];
 	CONF.numberNeed = [1, 2, 3, 4, 5];
 	CONF.learnTakeNumberNeed = [2, 4];
-	%这里指的是得到每个结果重复的次数，在 ISISeeker 中 repeatTrial 和 learnRepeatTrial 需要为 4 的倍数，
-	%因为做了 fullCross，因此重复被分配给 Seg-Int 1-0 1-1 0-1 0-0 四种情况
+	%这里指的是得到每个结果重复的次数(在 ISISeeker 中指得到一个 ISI 在 Seg/Int 条件下的值重复的次数)，
+	%而非是一种具体条件的重复次数，在 ISISeeker 中 repeatTrial 和 learnRepeatTrial 需要为 4 的倍数，
+	%因为做了 fullCross，因此重复被分配给 Target-NoTarget 1-0 1-1 0-1 0-0 四种情况,
+	%在 NUMSeeker 中需要为 5 的倍数，因为做了 fullCross 后，1,2,3,4,5 五个数字至少保证每个分配到 1 次
+	%但是因为在调试中最小公倍数为 20，因此在代码中有判断，如果值不可用，则选择 1.
 	CONF.repeatTrial = 20;
 	CONF.learnRepeatTrial = 4;
 	CONF.participartRelex = 60;

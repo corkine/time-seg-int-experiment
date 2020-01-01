@@ -44,13 +44,15 @@ lastOffSet = GetSecs;
 C = 1;
 while (C - 1 < trialsCount)
 
-	currentNum = EXP.numberWithRepeat(C,:);
-
-	fprintf('%-20s -- %d %s Trial, repK %1.0f, Number %d, prefISI %1.0f ms, Image %s\n', '[SEEKER][PREPARE]', ...
-			C, trialMark, repetitionK, currentNum ,prefISI * 1000, EXP.pictures{C, 3});
-	
 	t01 = textures{C, 1};
 	t02 = textures{C, 2};
+	pictureUsed = EXP.pictures{C, 3};
+	segNum = EXP.pictures{C, 4};
+	intNum = EXP.pictures{C, 5};
+	currentNum = EXP.numberWithRepeat(C);
+
+	fprintf('%-20s -- %d %s Trial, seg %1.0f, int %1.0f, repK %1.0f, Number %d, prefISI %1.0f ms, Image %s\n', '[SEEKER][PREPARE]', ...
+			C, trialMark, segNum, intNum, repetitionK, currentNum ,prefISI * 1000, pictureUsed);
 
 	% 先呈现 cross
 	fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]', crossDuration * 1000);
@@ -101,43 +103,55 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 	% 获取 ISI
 	if EXP.isLearn
 		numberNeed = CONF.learnTakeNumberNeed;
-		repeatTrial = CONF.learnRepeatTrial;
+		% 此处的重复为 full-cross 每种具体条件的重复，设置为 20 / 5 个数字，每组数字组合重复 4 次
+		% 这里的具体条件指的是 Seg-Int 的组合条件，具体条件使用 4 张满足组合需求的随机图片实现。
+		repeatTrial = ceil(CONF.learnRepeatTrial / length(numberNeed));
 	else
 		numberNeed = CONF.numberNeed;
-		repeatTrial = CONF.repeatTrial;
+		repeatTrial = ceil(CONF.repeatTrial / length(numberNeed));
 	end
 	
 	% 计时标记
 	time = join(string(clock),'_');
 	if EXP.isSeg
+		targetNumberIndex = 4;
 		if CONF.debug, fprintf('%-20s Use Debug Mode with Seg...\n','[SEEKER][SEG][DEBUG]'); end
 		EXP.segStartTime = time;
 	else
+		targetNumberIndex = 5;
 		if CONF.debug, fprintf('%-20s Use Debug Mode with Int...\n','[SEEKER][INT][DEBUG]'); end
 		EXP.intStartTime = time;
 	end
 
 	% 获取图片
-	trialsCount = length(numberNeed) * repeatTrial;
-	pictures = cell(trialsCount,3);
+	trialsCount = length(numberNeed) * length(numberNeed) * repeatTrial;
+	pictures = cell(trialsCount,5);
 	data = EXP.data;
 	% 对于每一个数字，构造 repeat 张图片
 	pictureIndex = 1;
-	for number = numberNeed
-		% 先找到这个数字的图片编号
-		picSNs = data(data(:,1) == -1 * number, 2); %180*1
-		currentLine = data(data(:,1) == -1 * number, :); %180*66
-		% 添加到所有数组共享的 pictures 数组
-		for i = 1: repeatTrial
-			picSN = picSNs(i);
-			commonFile = sprintf("sti_%d_%d_%d_", number, CONF.cheeseRow, picSN);
-			common = fullfile(CONF.picFolder, EXP.picID, commonFile);
-			pictures{pictureIndex,1} = char(common + "head.png");
-			pictures{pictureIndex,2} = char(common + "tail.png");
-			pictures{pictureIndex,3} = char(common + "fusion.png");
-			pictures{pictureIndex,4} = number;
-			pictures{pictureIndex,5} = currentLine(i,:);
-			pictureIndex = pictureIndex + 1;
+	for segNumber = numberNeed
+		for intNumber = numberNeed
+			% 先获取对应图片的所有可用数据，根据 data.mat 定义，
+			% 每一行代表两帧刺激，第一列为 seg 数的负值，第二列为 int 数的负值，
+			% 其余列为融合后的自上到下的每帧刺激，白色为 1 黑色为 0
+			targetPictures = data(data(:,1) == -1 * segNumber & data(:,2) == -1 * intNumber, :); %180*67
+			% 添加到所有数组共享的 pictures 数组
+			for i = 1: repeatTrial
+				targetPictures = Shuffle(targetPictures, 2);
+				targetLine = targetPictures(1,:);
+				picSN = targetLine(3);
+				commonFile = sprintf("sti_%d_%d_%d_%d_", segNumber, intNumber, CONF.cheeseRow, picSN);
+				common = fullfile(CONF.picFolder, EXP.picID, commonFile);
+				pictures{pictureIndex,1} = char(common + "head.png");
+				pictures{pictureIndex,2} = char(common + "tail.png");
+				pictures{pictureIndex,3} = char(common + "fusion.png");
+				pictures{pictureIndex,4} = segNumber;
+				pictures{pictureIndex,5} = intNumber;
+				pictures{pictureIndex,6} = targetLine;
+				%修改此处索引注意修改 EXP.usedData，EXP.numberWithRepeat(targetNumberIndex) 定义
+                %修改刺激呈现循环中 segNum 和 intNum, pictureUsed, t01, t02 定义。
+				pictureIndex = pictureIndex + 1;
+			end
 		end
 	end
 
@@ -154,11 +168,11 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
 	end
 
 	EXP.pictures = pictures;
-	EXP.numberWithRepeat = cell2mat(pictures(:,4));
+	EXP.numberWithRepeat = cell2mat(pictures(:,targetNumberIndex));
+	EXP.usedData = cell2mat(pictures(:, 6));
 	EXP.answers = ones(trialsCount,1) * -1;
 	EXP.userAnswers = ones(trialsCount,1) * -1;
 	EXP.actionTime = ones(trialsCount,1) * -1;
-	EXP.usedData = cell2mat(pictures(:,5));
 	EXP.totalStiShowTime = ones(trialsCount,1) * -1;
 end
 
