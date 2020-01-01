@@ -47,8 +47,8 @@ if CONF.debug
 	CONF.learnTakeIsiNeedFs = [0, 1];
 	CONF.numberNeed = [2, 6];
 	CONF.learnTakeNumberNeed = 2;
-	CONF.repeatTrial = 2;
-	CONF.learnRepeatTrial = 2;
+	CONF.repeatTrial = 4;
+	CONF.learnRepeatTrial = 4;
 	CONF.participartRelex = 1;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.5;
@@ -59,8 +59,10 @@ else
 	CONF.learnTakeIsiNeedFs = [2, 3];
 	CONF.numberNeed = [1, 2, 3, 4, 5];
 	CONF.learnTakeNumberNeed = [2, 4];
+	%这里指的是得到每个结果重复的次数，在 ISISeeker 中 repeatTrial 和 learnRepeatTrial 需要为 4 的倍数，
+	%因为做了 fullCross，因此重复被分配给 Seg-Int 1-0 1-1 0-1 0-0 四种情况
 	CONF.repeatTrial = 20;
-	CONF.learnRepeatTrial = 3;
+	CONF.learnRepeatTrial = 4;
 	CONF.participartRelex = 60;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;

@@ -104,10 +104,10 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     % 获取 ISI
     if EXP.isLearn
         isiNeed = EXP.learnTakeIsiNeed;
-        repeatTrial = CONF.learnRepeatTrial;
+        repeatTrial = CONF.learnRepeatTrial / 4;
     else
         isiNeed = EXP.isiNeed;
-        repeatTrial = CONF.repeatTrial;
+        repeatTrial = CONF.repeatTrial / 4;
     end
  
     % 计时标记
@@ -127,11 +127,15 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
     data = EXP.data;
     % 最终构造的包含 number 数字的重复 repeatTrial 次的 pictures Cell 的索引
     pictureIndex = 1;
-    for number = [0 1]
-        % 先获取对应图片的所有可用数据
-        picSNs = data(data(:,1) == -1 * number, 2); %180*1
-        currentLine = data(data(:,1) == -1 * number, :); %180*66
-        for i = 1 : repeatTrial
+    for segInt = [0, 0, 1, 1; 0, 1, 0, 1]
+        segNumber = segInt(1);
+        intNumber = segInt(2);
+        % 先获取对应图片的所有可用数据，根据 data.mat 定义，
+        % 每一行代表两帧刺激，第一列为 seg 数的负值，第二列为 int 数的负值，
+        % 其余列为融合后的自上到下的每帧刺激，白色为 1 黑色为 0
+        picSNs = data(data(:,1) == -1 * segNumber && data(:,2) == -1 * intNumber, 2); %180*1
+        currentLine = data(data(:,1) == -1 * segNumber && data(:,2) == -1 * intNumber, :); %180*66
+        for i = 1 : repeatTrial / 4
             for isi = isiNeed
                 % 再从中获取 repeatTrial 行图片
                 picSN = picSNs(i);
