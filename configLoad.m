@@ -4,7 +4,7 @@ function CONF = configLoad()
 
 %%%%%%%%%%%%% 程序参数和配置，此处定义  %%%%%%%%%%%%
 
-CONF.debug = true;
+CONF.debug = false;
 CONF.noDebugSkipSyncTest = true; % 在正式实验前，去除这里的标记以让程序同步刷新
 CONF.defaultSeekForISI = 1;
 
