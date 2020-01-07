@@ -55,8 +55,8 @@ if CONF.debug
 	CONF.repKNeed = [5, 6];
 	CONF.learnRepKNeed = 5;
 else
-	CONF.isiNeedFs = [0, 1, 2, 3, 4];
-	CONF.learnTakeIsiNeedFs = [2, 3];
+	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5];
+	CONF.learnTakeIsiNeedFs = 0;
 	CONF.numberNeed = [1, 2, 3, 4, 5];
 	CONF.learnTakeNumberNeed = [2, 4];
 	%这里指的是得到每个结果重复的次数(在 ISISeeker 中指得到一个 ISI 在 Seg/Int 条件下的值重复的次数)，
@@ -65,12 +65,12 @@ else
 	%在 NUMSeeker 中需要为 5 的倍数，因为做了 fullCross 后，1,2,3,4,5 五个数字至少保证每个分配到 1 次
 	%但是因为在调试中最小公倍数为 20，因此在代码中有判断，如果值不可用，则选择 1.
 	CONF.repeatTrial = 20;
-	CONF.learnRepeatTrial = 4;
+	CONF.learnRepeatTrial = 20;
 	CONF.participartRelex = 60;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
-	CONF.repKNeed = [5, 6, 7];
-	CONF.learnRepKNeed = [5, 6, 7];
+	CONF.repKNeed = [2, 3, 4];
+	CONF.learnRepKNeed = 4;
 end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult

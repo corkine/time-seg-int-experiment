@@ -35,7 +35,8 @@ try
     else
         totalIntro = CONF.NUM_INTRO;
     end
-    useSegFirst = Shuffle([0 1]);
+    % useSegFirst = Shuffle([0 1]);
+    useSegFirst = [1, 0];
     if useSegFirst(1) % 随机化 Seg、Int 顺序
         % 总指导语
         showIntro(SCR, totalIntro, 0.5);
