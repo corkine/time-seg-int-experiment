@@ -27,18 +27,18 @@ CONF.defaultPicID = '1779';
 CONF.defaultISI = 0.04;
 
 %%%%%%%%%%%%% 实验参数和配置，此处定义  %%%%%%%%%%%%
-CONF.ISI_INTRO= fullfile('assert','part1_intro.png');
-CONF.ISI_INTRO_S= fullfile('assert','part1_intro_s.png');
-CONF.ISI_INTRO_I = fullfile('assert','part1_intro_i.png');
-CONF.ISI_INTRO_S_EX = fullfile('assert','part1_intro_s_ex.png');
-CONF.ISI_INTRO_I_EX = fullfile('assert','part1_intro_i_ex.png');
+CONF.ISI_INTRO= fullfile('asset','part1_intro.png');
+CONF.ISI_INTRO_S= fullfile('asset','part1_intro_s.png');
+CONF.ISI_INTRO_I = fullfile('asset','part1_intro_i.png');
+CONF.ISI_INTRO_S_EX = fullfile('asset','part1_intro_s_ex.png');
+CONF.ISI_INTRO_I_EX = fullfile('asset','part1_intro_i_ex.png');
 
-CONF.NUM_INTRO= fullfile('assert','part2_intro.png');
-CONF.NUM_INTRO_S= fullfile('assert','part2_intro_s.png');
-CONF.NUM_INTRO_I = fullfile('assert','part2_intro_i.png');
-CONF.NUM_INTRO_S_EX = fullfile('assert','part2_intro_s_ex.png');
-CONF.NUM_INTRO_I_EX = fullfile('assert','part2_intro_i_ex.png');
-CONF.GRAY_IMAGE = fullfile('assert','gray.jpg');
+CONF.NUM_INTRO= fullfile('asset','part2_intro.png');
+CONF.NUM_INTRO_S= fullfile('asset','part2_intro_s.png');
+CONF.NUM_INTRO_I = fullfile('asset','part2_intro_i.png');
+CONF.NUM_INTRO_S_EX = fullfile('asset','part2_intro_s_ex.png');
+CONF.NUM_INTRO_I_EX = fullfile('asset','part2_intro_i_ex.png');
+CONF.GRAY_IMAGE = fullfile('asset','gray.jpg');
 
 CONF.crossSize = 50;
 
@@ -56,7 +56,7 @@ if CONF.debug
 	CONF.learnRepKNeed = 5;
 else
 	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5];
-	CONF.learnTakeIsiNeedFs = 3;
+	CONF.learnTakeIsiNeedFs = 0;
 	CONF.numberNeed = [1, 2, 3, 4, 5];
 	CONF.learnTakeNumberNeed = [2, 4];
 	%这里指的是得到每个结果重复的次数(在 ISISeeker 中指得到一个 ISI 在 Seg/Int 条件下的值重复的次数)，
@@ -70,7 +70,7 @@ else
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
 	CONF.repKNeed = [2, 3, 4];
-	CONF.learnRepKNeed = 3;
+	CONF.learnRepKNeed = 4;
 end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult
