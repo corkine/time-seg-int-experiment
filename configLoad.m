@@ -17,7 +17,7 @@ end
 CONF.picFolder = "pics";
 CONF.stimulateJarFile = "Psy4J.jar";
 CONF.targetNumber = 6;
-CONF.cheeseRow = 8;
+CONF.cheeseRow = 9;
 CONF.cheeseGridWidth = 60;
 
 CONF.defaultName = 'DebugName';
@@ -70,7 +70,7 @@ else
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
 	CONF.repKNeed = [2, 3, 4];
-	CONF.learnRepKNeed = 4;
+	CONF.learnRepKNeed = 5;
 end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult
