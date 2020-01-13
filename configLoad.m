@@ -56,7 +56,7 @@ if CONF.debug
 	CONF.learnRepKNeed = 5;
 else
 	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5];
-	CONF.learnTakeIsiNeedFs = 0;
+	CONF.learnTakeIsiNeedFs = 5;
 	CONF.numberNeed = [1, 2, 3, 4, 5];
 	CONF.learnTakeNumberNeed = [2, 4];
 	%这里指的是得到每个结果重复的次数(在 ISISeeker 中指得到一个 ISI 在 Seg/Int 条件下的值重复的次数)，
@@ -70,7 +70,7 @@ else
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
 	CONF.repKNeed = [2, 3, 4];
-	CONF.learnRepKNeed = 5;
+	CONF.learnRepKNeed = 4;
 end
 
 % when ISI = 1,  the integration effect is best, but the segregation is difficult
