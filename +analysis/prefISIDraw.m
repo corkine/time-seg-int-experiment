@@ -55,6 +55,7 @@ function allData = prefISIDraw(DATA)
 	set(get(gca, 'Title'), 'String', title);
 	set(get(gca, 'XLabel'), 'String', 'ISI ms');
 	set(get(gca, 'YLabel'), 'String', 'CorrectRate %');
+	ylim([0.45, 0.95]);
 	legendSeg = "Seg k=" + repKNeed;
 	legendInt = "Int k=" + repKNeed;
 	legend([legendSeg legendInt]);

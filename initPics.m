@@ -28,7 +28,7 @@ try
 	javaaddpath(jarPath);
 	h = com.mazhangjing.time.MATLABHelper;
 	data = h.generatePicturesWithArgsInRandomFolder(...
-			debugMode, target, target, row, wid, count, 'sti', 'gray','gray');
+			debugMode, target, target, row, wid, count, 'sti', 'gray','gray', false, 'white');
 	folderString = javaMethod('folder','com.mazhangjing.time.MATLABHelper');
 	folderName = char(folderString);
 	fprintf('%-20s Saved Data to data.mat at folder %s\n','[CONFIG]', folderName);

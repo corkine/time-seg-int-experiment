@@ -69,7 +69,7 @@ else
 	CONF.participartRelex = 60;
 	CONF.useUnlimitLearn = true;
 	CONF.minCurrent = 0.9;
-	CONF.repKNeed = [2, 3, 4];
+	CONF.repKNeed = [2, 3, 4]; %最终要加上1
 	CONF.learnRepKNeed = 4;
 end
 
