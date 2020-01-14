@@ -27,13 +27,15 @@ cd(fullfile(currentDir,picPath));
 try
 	javaaddpath(jarPath);
 	h = com.mazhangjing.time.MATLABHelper;
-	% def generatePicturesWithArgsInRandomFolder(debug: Boolean, seg: Int, int: Int,
-    %                                          row: Int, width: Int,
-    %                                          count: Int, pref: String,
-    %                                          stokeColor:String, bgColor:String,
-    %                                          randomColor: Boolean, unityColor: String): Array[Array[Int]]
+	% def generatePicturesWithArgsInRandomFolder(
+	% debug: Boolean, seg: Int, int: Int,
+	% row: Int, width: Int,
+	% count: Int, pref: String,
+	% stokeColor:String, bgColor:String,
+	% randomColor: Boolean, unityColor: String,
+	% muSpacing: Int, eleSpacing: Int): Array[Array[Int]]
 	data = h.generatePicturesWithArgsInRandomFolder(...
-			debugMode, target, target, row, wid, count, 'sti', 'gray','gray', false, 'white');
+			debugMode, target, target, row, wid, count, 'sti', 'gray','gray', false, 'white', 5, 30);
 	folderString = javaMethod('folder','com.mazhangjing.time.MATLABHelper');
 	folderName = char(folderString);
 	fprintf('%-20s Saved Data to data.mat at folder %s\n','[CONFIG]', folderName);
