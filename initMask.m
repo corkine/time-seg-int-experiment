@@ -1,18 +1,18 @@
 function [Stimuli] = initMask(SCR, CONF)
-% è®¡ç®—å¹¶ä¸”ç”Ÿæˆéšæœºé»‘ç™½ Mask
+% ¼ÆËã²¢ÇÒÉú³ÉËæ»úºÚ°× Mask
 
     Stimuli.ObjAreaSizeP = CONF.cheeseRow * CONF.cheeseGridWidth * 1.6;
     Stimuli.MaskRectSizeP = CONF.cheeseGridWidth / 5;
 
     %% masks 
-    %æ­¤å¤„maskæš‚æ—¶æ˜¯å¤§å°ç›¸åŒã€é¢œè‰²éšæœºçš„é¢œè‰²æ–¹å—
+    %´Ë´¦maskÔİÊ±ÊÇ´óĞ¡ÏàÍ¬¡¢ÑÕÉ«Ëæ»úµÄÑÕÉ«·½¿é
     % loc  
     Stimuli.MaskRectNum = ceil(Stimuli.ObjAreaSizeP/Stimuli.MaskRectSizeP); % num = length/size
-    Stimuli.PointMetrix = combineFactors(0:Stimuli.MaskRectNum-1,0:Stimuli.MaskRectNum-1);   % maskä¸­æ¯ä¸ªå°æ–¹å—éƒ½å½’å±äºæŸä¸€åˆ—ï¼ˆåŒåˆ—çš„xåæ ‡ç›¸åŒï¼‰ï¼Œç„¶åå†å½’å±äºæŸä¸€è¡Œï¼ˆåŒè¡Œçš„yåæ ‡ç›¸åŒï¼‰ï¼
-    Stimuli.referencePoint = [SCR.x - Stimuli.ObjAreaSizeP/2, SCR.y - Stimuli.ObjAreaSizeP/2];%å·¦ä¸Šè§’é¡¶ç‚¹åæ ‡
-    LeftUpPoints(:,1) = Stimuli.PointMetrix(:,1) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,1);%æ‰€æœ‰rectçš„å·¦ä¸Šè§’åæ ‡
+    Stimuli.PointMetrix = combineFactors(0:Stimuli.MaskRectNum-1,0:Stimuli.MaskRectNum-1);   % maskÖĞÃ¿¸öĞ¡·½¿é¶¼¹éÊôÓÚÄ³Ò»ÁĞ£¨Í¬ÁĞµÄx×ø±êÏàÍ¬£©£¬È»ºóÔÙ¹éÊôÓÚÄ³Ò»ĞĞ£¨Í¬ĞĞµÄy×ø±êÏàÍ¬£©£¡
+    Stimuli.referencePoint = [SCR.x - Stimuli.ObjAreaSizeP/2, SCR.y - Stimuli.ObjAreaSizeP/2];%×óÉÏ½Ç¶¥µã×ø±ê
+    LeftUpPoints(:,1) = Stimuli.PointMetrix(:,1) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,1);%ËùÓĞrectµÄ×óÉÏ½Ç×ø±ê
     LeftUpPoints(:,2) = Stimuli.PointMetrix(:,2) * Stimuli.MaskRectSizeP+Stimuli.referencePoint(1,2);
-    RightBotomPoints(:,1) = LeftUpPoints(:,1) + Stimuli.MaskRectSizeP;%æ‰€æœ‰rectå³ä¸‹è§’åæ ‡
+    RightBotomPoints(:,1) = LeftUpPoints(:,1) + Stimuli.MaskRectSizeP;%ËùÓĞrectÓÒÏÂ½Ç×ø±ê
     RightBotomPoints(:,2) = LeftUpPoints(:,2) + Stimuli.MaskRectSizeP;
     Stimuli.MaskRects = [LeftUpPoints,RightBotomPoints];
     Stimuli.MaskRects = Stimuli.MaskRects';
@@ -22,7 +22,7 @@ function [Stimuli] = initMask(SCR, CONF)
     Stimuli.MaskRectsColor = ones(3,rectsNum);
 
     for rowindex = 1:rectsNum
-        tmp1=randperm(2); %éšæœºæ·é»‘ç™½-é»‘ç™½Mask
+        tmp1=randperm(2); %Ëæ»úÖÀºÚ°×-ºÚ°×Mask
         if tmp1(1)==1, Stimuli.MaskRectsColor(:,rowindex)=0;   end
         if tmp1(1)==2, Stimuli.MaskRectsColor(:,rowindex)=255; end
     end

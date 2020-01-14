@@ -1,9 +1,9 @@
 function EXP = expLoad(CONF, EXP)
-%DIALOGLOAD ä»å¯¹è¯æ¡†ä¸­åŠ è½½é…ç½®ï¼Œç»“æœå†™å…¥ EXP struct ä¸­ã€‚
-%æœ¬ç¨‹åºå¾€ EXP ä¸­å†™å…¥äº† prefISIã€startTimeã€seekForISIã€nameã€genderã€noteã€picId ä¿¡æ¯ã€‚
+%DIALOGLOAD ´Ó¶Ô»°¿òÖĞ¼ÓÔØÅäÖÃ£¬½á¹ûĞ´Èë EXP struct ÖĞ¡£
+%±¾³ÌĞòÍù EXP ÖĞĞ´ÈëÁË prefISI¡¢startTime¡¢seekForISI¡¢name¡¢gender¡¢note¡¢picId ĞÅÏ¢¡£
 %CONF struct contains debug, defaultSeekForISI, defaultName, defaultGender, defaultNote, defaultISI, defaultPicID fields
-%   å¦‚æœæ˜¯ SeekForISI ç¬¬ä¸€éƒ¨åˆ†ï¼Œå¦‚æœæ˜¯ debug æ¨¡å¼ï¼Œåˆ™è¿”å›ï¼Œåä¹‹ï¼Œå¦‚æœå–æ¶ˆï¼Œåˆ™è¿”å›ï¼Œå¦‚æœç¡®å®šåˆ™è¿”å›è®¾å®šåçš„å€¼ã€‚
-%   å¦‚æœæ˜¯ SeekForNumber ç¬¬äºŒéƒ¨åˆ†ï¼Œåˆ™ç»§ç»­å¼¹å‡ºå¯¹è¯æ¡†è¦æ±‚è¢«è¯•è¾“å…¥è®¡ç®—çš„ prefISI ä»¥ä¾›æ¥ä¸‹æ¥çš„å®éªŒ
+%   Èç¹ûÊÇ SeekForISI µÚÒ»²¿·Ö£¬Èç¹ûÊÇ debug Ä£Ê½£¬Ôò·µ»Ø£¬·´Ö®£¬Èç¹ûÈ¡Ïû£¬Ôò·µ»Ø£¬Èç¹ûÈ·¶¨Ôò·µ»ØÉè¶¨ºóµÄÖµ¡£
+%   Èç¹ûÊÇ SeekForNumber µÚ¶ş²¿·Ö£¬Ôò¼ÌĞøµ¯³ö¶Ô»°¿òÒªÇó±»ÊÔÊäÈë¼ÆËãµÄ prefISI ÒÔ¹©½ÓÏÂÀ´µÄÊµÑé
 
 assert(nargin > 1, ...
 'Should Input CONF struct contains debug, defaultSeekForISI, defaultName, defaultGender, defaultNote, defaultISI fields and EXP struct');
@@ -16,7 +16,7 @@ title = 'Config Dialog';
 EXP.prefISI = CONF.defaultISI;
 
 if CONF.debug
-    % DEBUG æ¨¡å¼ç¬¬ä¸€æ­¥æˆ–è€…ç¬¬äºŒæ­¥ï¼Œéƒ½ä½¿ç”¨é»˜è®¤é…ç½®
+    % DEBUG Ä£Ê½µÚÒ»²½»òÕßµÚ¶ş²½£¬¶¼Ê¹ÓÃÄ¬ÈÏÅäÖÃ
     EXP.seekForISI = CONF.defaultSeekForISI;
     EXP.name = CONF.defaultName;
     EXP.gender = CONF.defaultGender;
@@ -24,8 +24,8 @@ if CONF.debug
     EXP.startTime = join(string(clock),'_');
     EXP.picID = CONF.defaultPicID;
 else
-    % æ­£å¼å®éªŒï¼Œå¦‚æœç¬¬ä¸€æ­¥ï¼Œåˆ™åªå¼¹ä¸€ä¸ªå¯¹è¯æ¡†ã€‚
-    % å¦‚æœç¬¬äºŒæ­¥ï¼Œåˆ™å¼¹ä¸¤ä¸ªå¯¹è¯æ¡†
+    % ÕıÊ½ÊµÑé£¬Èç¹ûµÚÒ»²½£¬ÔòÖ»µ¯Ò»¸ö¶Ô»°¿ò¡£
+    % Èç¹ûµÚ¶ş²½£¬Ôòµ¯Á½¸ö¶Ô»°¿ò
     anst = inputdlg(prompt, title, 1, default_ans);
     if ~isempty(anst)
         EXP.seekForISI = str2double(anst{1,1});
@@ -35,7 +35,7 @@ else
         EXP.startTime = join(string(clock),'_');
         EXP.picID = anst{5,1};
     else
-        error('æ­¤æ­¥éª¤ä¸å¯è·³è¿‡ï¼Œå¦‚æœå¸Œæœ›ä½¿ç”¨é»˜è®¤é…ç½®ï¼Œè¯·ç‚¹å‡»ç¡®å®šä»æ–‡æœ¬æ¡†ä¸­è§£æå€¼å¹¶ä½¿ç”¨ï¼Œè¯·å‹¿ç‚¹å‡»å…³é—­çª—å£');
+        error('´Ë²½Öè²»¿ÉÌø¹ı£¬Èç¹ûÏ£ÍûÊ¹ÓÃÄ¬ÈÏÅäÖÃ£¬Çëµã»÷È·¶¨´ÓÎÄ±¾¿òÖĞ½âÎöÖµ²¢Ê¹ÓÃ£¬ÇëÎğµã»÷¹Ø±Õ´°¿Ú');
     end
     EXP = getPrefISI(CONF, EXP);
 end

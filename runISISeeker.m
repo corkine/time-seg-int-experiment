@@ -1,5 +1,5 @@
 function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
-% RUNISISEEKER å¯»æ‰¾æœ€ä½³ ISI çš„å®éªŒ Trial åºåˆ—
+% RUNISISEEKER Ñ°ÕÒ×î¼Ñ ISI µÄÊµÑé Trial ĞòÁĞ
 %
 %   [ADD] EXP.segStartTime, EXP.intStartTime, EXP.isiNeed, EXP.learnTaskIsiNeed, 
 %   Stimuli.maskOnsetReal, Stimuli.maskOffSetReal
@@ -7,7 +7,7 @@ function [SCR, EXP] = runISISeeker(SCR, EXP, CONF)
 %       [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, 
 %             EXP.usedData, EXP.totalStiShowTime
 
-% å‡†å¤‡ä¸€äº›å¯å¤ç”¨çš„å˜é‡å’Œ PTB ææ–™
+% ×¼±¸Ò»Ğ©¿É¸´ÓÃµÄ±äÁ¿ºÍ PTB ²ÄÁÏ
 w = SCR.window;
 vblSlack = SCR.vblSlack;
 textureGray = MakeTexture(w, CONF.GRAY_IMAGE);
@@ -37,11 +37,11 @@ else
     trialMark = 'INT';
 end
 
-% å‡†å¤‡å›¾ç‰‡ç­‰å®éªŒææ–™ï¼Œè®¾ç½® trial
+% ×¼±¸Í¼Æ¬µÈÊµÑé²ÄÁÏ£¬ÉèÖÃ trial
 [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w);
 Stimuli = initMask(SCR, CONF);
 
-% å¼€å§‹å¾ªç¯å‘ˆç° trial
+% ¿ªÊ¼Ñ­»·³ÊÏÖ trial
 Screen('DrawTexture',w,textureGray,[],[]); Screen('Flip',w);
 
 lastOffSet = GetSecs;
@@ -59,10 +59,10 @@ while (C - 1 < trialsCount)
     fprintf('%-20s -- %d %s Trial, seg %1.0f, int %1.0f, target %1.0f, repK %1.0f, ISI %1.0f ms and Image %s\n', '[SEEKER][PREPARE]', ...
             C, trialMark, segNum, intNum, currentNum, repetitionK, thisTrialISI * 1000, pictureUsed);
 
-    % å…ˆå‘ˆç° cross
+    % ÏÈ³ÊÏÖ cross
     fprintf('%-20s Show Fixation Cross in %1.0f ms\n','[SEEKER][SHOW]',crossDuration * 1000);
     crossOffSet = drawFocusCross(w, lastOffSet, vblSlack, CONF.crossSize, crossDuration);
-    % å¾ªç¯ repetitionK æ¬¡å‘ˆç°åˆºæ¿€
+    % Ñ­»· repetitionK ´Î³ÊÏÖ´Ì¼¤
     Priority(2);
     K = 0; 
     lastOffSetInner = crossOffSet;
@@ -76,12 +76,12 @@ while (C - 1 < trialsCount)
         if K == 0, stimuliOnset = t1OnsetReal; end
         K = K + 1;
     end
-    % ç»è¿‡ beforeMaskDelay åå‘ˆç° mask
+    % ¾­¹ı beforeMaskDelay ºó³ÊÏÖ mask
     Screen('FillRect', w, Stimuli.MaskRectsColor,Stimuli.MaskRects);
     Stimuli.maskOnsetReal = Screen('flip', w, t2OffsetReal + beforeMaskDelay - vblSlack);
     Stimuli.maskOffSetReal = Screen('flip', w, Stimuli.maskOnsetReal + maskDuration - vblSlack);
     Priority(0);
-    % ç»è¿‡ beforeRectChooseDelay åè¦æ±‚è¢«è¯•å›ç­”
+    % ¾­¹ı beforeRectChooseDelay ºóÒªÇó±»ÊÔ»Ø´ğ
     delayOffSet = WaitSecs(beforeRectChooseDelay);
     [isRight, lastOffSet] = waitForRectChoose(w, delayOffSet, vblSlack, currentNum, needFeedback, feedbackSecs);
     EXP.answers(C) = isRight;
@@ -98,23 +98,23 @@ function t = MakeTexture(w, pictureName)
 end
 
 function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
-    % ä» pics æ–‡ä»¶å¤¹åŠ è½½å›¾ç‰‡ï¼Œå¹¶ä¸”éšæœºåŒ–ï¼Œåˆ›å»ºçº¹ç†ï¼ŒåŒæ—¶éšæœºåŒ– ISIï¼Œåˆ†é…ç»™ trialsï¼Œ
-    % å°†ç»“æœä¿å­˜åœ¨ EXP.pictures, isiWithRepeat ä¸­ï¼Œè¿”å›éœ€è¦ä¸‹ä¸€æ­¥ä½¿ç”¨çš„ textures 
-    % å’Œ trialsCountï¼Œä»¥åŠæ›´æ”¹åçš„ EXP
+    % ´Ó pics ÎÄ¼ş¼Ğ¼ÓÔØÍ¼Æ¬£¬²¢ÇÒËæ»ú»¯£¬´´½¨ÎÆÀí£¬Í¬Ê±Ëæ»ú»¯ ISI£¬·ÖÅä¸ø trials£¬
+    % ½«½á¹û±£´æÔÚ EXP.pictures, isiWithRepeat ÖĞ£¬·µ»ØĞèÒªÏÂÒ»²½Ê¹ÓÃµÄ textures 
+    % ºÍ trialsCount£¬ÒÔ¼°¸ü¸ÄºóµÄ EXP
     %
-    %   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTimeï¼ŒEXP.usedData
+    %   [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime£¬EXP.usedData
 
-    % è·å– ISI
+    % »ñÈ¡ ISI
     if EXP.isLearn
         isiNeed = EXP.learnTakeIsiNeed;
-        % æ­¤å¤„çš„ 4 ä¸º Seg-Int 0-1 0-0 1-1 1-0 å››ç§æƒ…å†µ
+        % ´Ë´¦µÄ 4 Îª Seg-Int 0-1 0-0 1-1 1-0 ËÄÖÖÇé¿ö
         repeatTrial = ceil(CONF.learnRepeatTrial / 4);
     else
         isiNeed = EXP.isiNeed;
         repeatTrial = ceil(CONF.repeatTrial / 4);
     end
  
-    % è®¡æ—¶æ ‡è®°
+    % ¼ÆÊ±±ê¼Ç
     time = join(string(clock),'_');
     if EXP.isSeg
         if CONF.debug, fprintf('%-20s Use Debug Mode with Seg...\n','[SEEKER][SEG][DEBUG]'); end
@@ -124,18 +124,18 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
         EXP.intStartTime = time;
     end
 
-    % è·å–å›¾ç‰‡
-    trialsCount = length(isiNeed) * repeatTrial * 4; % 4ç§å…·ä½“æ¡ä»¶åœ¨ä¸åŒ ISI æ¡ä»¶ä¸‹é‡å¤ç»„æˆçš„æ‰€æœ‰è¯•æ¬¡æ•°
+    % »ñÈ¡Í¼Æ¬
+    trialsCount = length(isiNeed) * repeatTrial * 4; % 4ÖÖ¾ßÌåÌõ¼şÔÚ²»Í¬ ISI Ìõ¼şÏÂÖØ¸´×é³ÉµÄËùÓĞÊÔ´ÎÊı
     pictures = cell(trialsCount,7);
     data = EXP.data;
-    % æœ€ç»ˆæ„é€ çš„åŒ…å« number æ•°å­—çš„é‡å¤ repeatTrial æ¬¡çš„ pictures Cell çš„ç´¢å¼•
+    % ×îÖÕ¹¹ÔìµÄ°üº¬ number Êı×ÖµÄÖØ¸´ repeatTrial ´ÎµÄ pictures Cell µÄË÷Òı
     pictureIndex = 1;
     for segInt = [0, 0, 1, 1; 0, 1, 0, 1]
         segNumber = segInt(1);
         intNumber = segInt(2);
-        % å…ˆè·å–å¯¹åº”å›¾ç‰‡çš„æ‰€æœ‰å¯ç”¨æ•°æ®ï¼Œæ ¹æ® data.mat å®šä¹‰ï¼Œ
-        % æ¯ä¸€è¡Œä»£è¡¨ä¸¤å¸§åˆºæ¿€ï¼Œç¬¬ä¸€åˆ—ä¸º seg æ•°çš„è´Ÿå€¼ï¼Œç¬¬äºŒåˆ—ä¸º int æ•°çš„è´Ÿå€¼ï¼Œ
-        % å…¶ä½™åˆ—ä¸ºèåˆåçš„è‡ªä¸Šåˆ°ä¸‹çš„æ¯å¸§åˆºæ¿€ï¼Œç™½è‰²ä¸º 1 é»‘è‰²ä¸º 0
+        % ÏÈ»ñÈ¡¶ÔÓ¦Í¼Æ¬µÄËùÓĞ¿ÉÓÃÊı¾İ£¬¸ù¾İ data.mat ¶¨Òå£¬
+        % Ã¿Ò»ĞĞ´ú±íÁ½Ö¡´Ì¼¤£¬µÚÒ»ÁĞÎª seg ÊıµÄ¸ºÖµ£¬µÚ¶şÁĞÎª int ÊıµÄ¸ºÖµ£¬
+        % ÆäÓàÁĞÎªÈÚºÏºóµÄ×ÔÉÏµ½ÏÂµÄÃ¿Ö¡´Ì¼¤£¬°×É«Îª 1 ºÚÉ«Îª 0
         targetPictures = data(data(:,1) == -1 * segNumber & data(:,2) == -1 * intNumber, :); %180*67
         for i = 1 : repeatTrial
             for isi = isiNeed
@@ -151,17 +151,17 @@ function [EXP, trialsCount, textures] = prepareMaterial(CONF, EXP, w)
                 pictures{pictureIndex,5} = intNumber;
                 pictures{pictureIndex,6} = isi;
                 pictures{pictureIndex,7} = targetLine;
-                %ä¿®æ”¹æ­¤å¤„ç´¢å¼•æ³¨æ„ä¿®æ”¹ EXP.usedDataï¼ŒEXP.isiWithRepeat å®šä¹‰ï¼Œ
-                %ä¿®æ”¹åˆºæ¿€å‘ˆç°å¾ªç¯ä¸­ segNum å’Œ intNum, pictureUsed, t01, t02 ä»¥åŠ pictureNumberIndex å®šä¹‰ã€‚
+                %ĞŞ¸Ä´Ë´¦Ë÷Òı×¢ÒâĞŞ¸Ä EXP.usedData£¬EXP.isiWithRepeat ¶¨Òå£¬
+                %ĞŞ¸Ä´Ì¼¤³ÊÏÖÑ­»·ÖĞ segNum ºÍ intNum, pictureUsed, t01, t02 ÒÔ¼° pictureNumberIndex ¶¨Òå¡£
                 pictureIndex = pictureIndex + 1;
             end
         end
     end
 
-    % éšæœºåŒ– pictures
+    % Ëæ»ú»¯ pictures
     pictures = Shuffle(pictures,2);
 
-    % å°†å›¾ç‰‡è½¬æ¢æˆä¸ºçº¹ç†
+    % ½«Í¼Æ¬×ª»»³ÉÎªÎÆÀí
     textures = cell(trialsCount,2);
     for i = 1 : trialsCount
         pic1 = pictures{i, 1};

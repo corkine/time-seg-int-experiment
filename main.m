@@ -1,11 +1,11 @@
-% æœ¬è„šæœ¬ç”¨æ¥æ‰§è¡Œæ•´ä¸ªå®éªŒæµç¨‹ï¼ŒåŒ…æ‹¬åˆºæ¿€çš„ç”Ÿæˆã€è¯•æ¬¡çš„ç¼–æ’ã€ä¼‘æ¯ã€æŒ‡å¯¼è¯­ï¼š
-% æ•°æ®ç»“æ„å¦‚ä¸‹æ‰€ç¤ºï¼š
-%   DATA ä¿å­˜æ‰€æœ‰æ•°æ® -- segã€intData ä¿å­˜ Segã€Int æ•°æ® -- k{n} ä¿å­˜ k åœ¨æŸä¸€ä¸ªæ°´å¹³ä¸‹æ•°æ® -- 
-%   EXP æŸä¸€ä¸ª k æ°´å¹³ä¸‹ä¸åŒæ“çºµè‡ªå˜é‡çš„æ•°æ®ï¼Œå¯¹äº seekISI è€Œè¨€ï¼Œæ˜¯ isiï¼Œå¯¹äº seekNum è€Œè¨€ï¼Œæ˜¯ num
-% å˜é‡æ›´æ”¹å¦‚ä¸‹æ‰€ç¤ºï¼š
-%   seg/intData.k{n}, EXP.usedK, ä»…åœ¨ seekForNum æ¡ä»¶ä¸‹æ³¨å…¥ï¼šEXP.prefISI å’Œ EXP.prefISIFs
+% ±¾½Å±¾ÓÃÀ´Ö´ĞĞÕû¸öÊµÑéÁ÷³Ì£¬°üÀ¨´Ì¼¤µÄÉú³É¡¢ÊÔ´ÎµÄ±àÅÅ¡¢ĞİÏ¢¡¢Ö¸µ¼Óï£º
+% Êı¾İ½á¹¹ÈçÏÂËùÊ¾£º
+%   DATA ±£´æËùÓĞÊı¾İ -- seg¡¢intData ±£´æ Seg¡¢Int Êı¾İ -- k{n} ±£´æ k ÔÚÄ³Ò»¸öË®Æ½ÏÂÊı¾İ -- 
+%   EXP Ä³Ò»¸ö k Ë®Æ½ÏÂ²»Í¬²Ù×İ×Ô±äÁ¿µÄÊı¾İ£¬¶ÔÓÚ seekISI ¶øÑÔ£¬ÊÇ isi£¬¶ÔÓÚ seekNum ¶øÑÔ£¬ÊÇ num
+% ±äÁ¿¸ü¸ÄÈçÏÂËùÊ¾£º
+%   seg/intData.k{n}, EXP.usedK, ½öÔÚ seekForNum Ìõ¼şÏÂ×¢Èë£ºEXP.prefISI ºÍ EXP.prefISIFs
 %   dexpLoad
-%       [ADD] prefISIã€startTimeã€seekForISIã€nameã€genderã€noteã€picId
+%       [ADD] prefISI¡¢startTime¡¢seekForISI¡¢name¡¢gender¡¢note¡¢picId
 %   initApplication
 %       [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
 %   initScreen
@@ -15,8 +15,8 @@
 %       prepareMaterial 
 %           [ADD] EXP.pictures, EXP.isiWithRepeat, EXP.answers, EXP.actionTime, EXP.usedData, EXP.numberWithRepeat[, EXP.userAnswers]
 %
-%  è¯·å‹¿ç›´æ¥è°ƒç”¨ Psy4J.jar ç”Ÿæˆå›¾ç‰‡ï¼Œé€šè¿‡æ­¤å‡½æ•°è°ƒç”¨çš„ Psy4J.jar ä¼šå°†ç»“æœä¿å­˜åˆ° debug_data.mat ä¸­
-%  ä»¥å¤‡ debug æ¨¡å¼ä½¿ç”¨ã€‚æ­¤æ•°æ®å’Œå›¾ç‰‡é¡ºåºå¯¹åº”ï¼ŒåŒ…å«äº†å›¾ç‰‡ä¸­çš„ç‚¹é˜µå…³é”®ä¿¡æ¯ã€‚
+%  ÇëÎğÖ±½Óµ÷ÓÃ Psy4J.jar Éú³ÉÍ¼Æ¬£¬Í¨¹ı´Ëº¯Êıµ÷ÓÃµÄ Psy4J.jar »á½«½á¹û±£´æµ½ debug_data.mat ÖĞ
+%  ÒÔ±¸ debug Ä£Ê½Ê¹ÓÃ¡£´ËÊı¾İºÍÍ¼Æ¬Ë³Ğò¶ÔÓ¦£¬°üº¬ÁËÍ¼Æ¬ÖĞµÄµãÕó¹Ø¼üĞÅÏ¢¡£
 
 CONF = configLoad();
 EXP = struct();
@@ -37,37 +37,37 @@ try
     end
     % useSegFirst = Shuffle([0 1]);
     useSegFirst = [0, 1];
-    if useSegFirst(1) % éšæœºåŒ– Segã€Int é¡ºåº
-        % æ€»æŒ‡å¯¼è¯­
+    if useSegFirst(1) % Ëæ»ú»¯ Seg¡¢Int Ë³Ğò
+        % ×ÜÖ¸µ¼Óï
         showIntro(SCR, totalIntro, 0.5);
-        % Seg - ç»ƒä¹ 
+        % Seg - Á·Ï°
         EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
-        % Seg - æ­£å¼
+        % Seg - ÕıÊ½
         EXP_S = initCondition(SCR, EXP, CONF, true, false);
-        % ä¸­é—´ä¼‘æ¯
+        % ÖĞ¼äĞİÏ¢
         fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]',CONF.participartRelex);
         showSleep(SCR, CONF.participartRelex, 0.5);
-        % Int - ç»ƒä¹ 
+        % Int - Á·Ï°
         EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
-        % Int - æ­£å¼
+        % Int - ÕıÊ½
         EXP_I = initCondition(SCR, EXP, CONF, false, false);
     else
-        % æ€»æŒ‡å¯¼è¯­
+        % ×ÜÖ¸µ¼Óï
         showIntro(SCR, totalIntro, 0.5);
-        % Int - ç»ƒä¹ 
+        % Int - Á·Ï°
         EXP_I_EX = initConditionWithTry(SCR, EXP, CONF, false, true);
-        % Int - æ­£å¼
+        % Int - ÕıÊ½
         EXP_I = initCondition(SCR, EXP, CONF, false, false);
-        % ä¸­é—´ä¼‘æ¯
+        % ÖĞ¼äĞİÏ¢
         fprintf('%-20s Systen will sleep For %d secs\n', '[SLEEP]', CONF.participartRelex);
         showSleep(SCR, CONF.participartRelex, 0.5);
-        % Seg - ç»ƒä¹ 
+        % Seg - Á·Ï°
         EXP_S_EX = initConditionWithTry(SCR, EXP, CONF, true, true);
-        % Seg - æ­£å¼
+        % Seg - ÕıÊ½
         EXP_S = initCondition(SCR, EXP, CONF, true, false);
     end
     
-    % ä¿å­˜æ‰€æœ‰æ•°æ®
+    % ±£´æËùÓĞÊı¾İ
     DATA.segData = EXP_S;
     DATA.intData = EXP_I;
     DATA.scrInfo = SCR;
@@ -82,8 +82,8 @@ end
 closeScreen(SCR.window);
 
 function [SCR, EXP] = initApplication(CONF, EXP)
-    % åˆå§‹åŒ–åº”ç”¨ç¨‹åºï¼ŒåŒ…æ‹¬åº”ç”¨ DEBUG æ¨¡å¼ï¼Œè®¾ç½®é»˜è®¤ EXP å€¼ï¼Œ
-    % è°ƒç”¨ Java/MAT æ–‡ä»¶è·å–å›¾ç‰‡åˆ—è¡¨å¯¹åº”çš„æ•°æ®ä¿¡æ¯ã€‚
+    % ³õÊ¼»¯Ó¦ÓÃ³ÌĞò£¬°üÀ¨Ó¦ÓÃ DEBUG Ä£Ê½£¬ÉèÖÃÄ¬ÈÏ EXP Öµ£¬
+    % µ÷ÓÃ Java/MAT ÎÄ¼ş»ñÈ¡Í¼Æ¬ÁĞ±í¶ÔÓ¦µÄÊı¾İĞÅÏ¢¡£
     % [ADD] EXP.data, SCR.debug, screenSize, EXP.isLearn, EXP.isSeg
     Screen('Preference','SuppressAllWarnings', true);
     if CONF.debug
@@ -109,9 +109,9 @@ function [SCR, EXP] = initApplication(CONF, EXP)
 end
 
 function SCR = initScreen(SCR)
-    % åˆå§‹åŒ– Screen å’Œ PTB å¥æŸ„
+    % ³õÊ¼»¯ Screen ºÍ PTB ¾ä±ú
     % [ADD] SCR.window, windowRect, frameDuration, vblSlack
-    %åˆå§‹åŒ– Screen
+    %³õÊ¼»¯ Screen
     if isempty(SCR.screenSize)
         [w,rect]= Screen('OpenWindow',0,[128 128 128]); 
     else
@@ -134,7 +134,7 @@ function EXP = computePrefIsiFs(SCR, EXP)
 end
 
 function closeScreen(w)
-    % å…³é—­å’Œæ¸…ç† PTB å¥æŸ„
+    % ¹Ø±ÕºÍÇåÀí PTB ¾ä±ú
     Priority(0);
     Screen('Close',w); 
     Screen('CloseAll'); 
@@ -142,7 +142,7 @@ function closeScreen(w)
 end
 
 function showIntro(SCR, introImage, withDelay)
-    % æ˜¾ç¤ºæŒ‡å¯¼è¯­ç•Œé¢
+    % ÏÔÊ¾Ö¸µ¼Óï½çÃæ
     w = SCR.window;
     fprintf('%-20s Showing Intro %s now...\n', '[INTRO]',introImage);
     img = imread(introImage);
@@ -162,7 +162,7 @@ function showIntro(SCR, introImage, withDelay)
 end
 
 function showSleep(SCR, sleepMinSecs, withDelay)
-    % æ˜¾ç¤ºä¼‘æ¯ç•Œé¢
+    % ÏÔÊ¾ĞİÏ¢½çÃæ
     w = SCR.window;
     text = sprintf('Please Relex for min %d secs, Counting...', sleepMinSecs);
     DrawFormattedText(w, text, 'center', 'center', [0 0 0]);
@@ -184,7 +184,7 @@ function showSleep(SCR, sleepMinSecs, withDelay)
 end
 
 function showAcc(SCR, CONF, currentP, withDelay)
-    % æ˜¾ç¤ºæ­£ç¡®ç‡ä¿¡æ¯
+    % ÏÔÊ¾ÕıÈ·ÂÊĞÅÏ¢
     w = SCR.window;
     Screen('Flip',w);
     needP = CONF.minCurrent;
@@ -205,11 +205,11 @@ function showAcc(SCR, CONF, currentP, withDelay)
 end
 
 function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
-    % æ‰§è¡Œ initConditionï¼Œæ ¹æ®æ­£ç¡®ç‡åˆ¤æ–­ï¼Œå¦‚æœä¸é€šè¿‡ï¼Œåˆ™æ— é™é‡è¯•ã€‚
+    % Ö´ĞĞ initCondition£¬¸ù¾İÕıÈ·ÂÊÅĞ¶Ï£¬Èç¹û²»Í¨¹ı£¬ÔòÎŞÏŞÖØÊÔ¡£
     if CONF.useUnlimitLearn
         while true
             EXP_SPEC = initCondition(SCR, EXP, CONF, isSeg, isLearn);
-            % è·å–æ¯ä¸ª k é€‰é¡¹çš„ answers, ä¹‹åç´¯ç§¯æˆä¸º a
+            % »ñÈ¡Ã¿¸ö k Ñ¡ÏîµÄ answers, Ö®ºóÀÛ»ı³ÉÎª a
             if ~isLearn
                 repKNeed = CONF.repKNeed;
             else
@@ -239,7 +239,7 @@ function EXP_SPEC = initConditionWithTry(SCR, EXP, CONF, isSeg, isLearn)
 end
 
 function EXP_SPEC_OUT = initCondition(SCR, EXP, CONF, isSeg, isLearn)
-% åˆå§‹åŒ–æŒ‡å®šçš„æ¡ä»¶ï¼Œæ ¹æ® LearnOrNotã€SegOrIntã€IsiOrNum éå† K è°ƒç”¨ seeker æ˜¾ç¤ºåˆºæ¿€ï¼Œæ”¶é›†æ•°æ®
+% ³õÊ¼»¯Ö¸¶¨µÄÌõ¼ş£¬¸ù¾İ LearnOrNot¡¢SegOrInt¡¢IsiOrNum ±éÀú K µ÷ÓÃ seeker ÏÔÊ¾´Ì¼¤£¬ÊÕ¼¯Êı¾İ
     if isLearn
         if isSeg
             if EXP.seekForISI
@@ -273,25 +273,25 @@ function EXP_SPEC_OUT = initCondition(SCR, EXP, CONF, isSeg, isLearn)
             fprintf('%-20s System will First Run IntISISeeker...\n','[MAIN][INT]');
         end
     end
-    % Seg/Int æŒ‡å¯¼è¯­ - æ­£å¼/ç»ƒä¹ 
+    % Seg/Int Ö¸µ¼Óï - ÕıÊ½/Á·Ï°
     showIntro(SCR, intro);
 
-    % Seg/Int å®éªŒ - æ­£å¼/ç»ƒä¹ 
+    % Seg/Int ÊµÑé - ÕıÊ½/Á·Ï°
     EXP_SPEC = EXP;
     EXP_SPEC.isSeg = isSeg;
     EXP_SPEC.isLearn = isLearn;
-    % éšæœºåŒ–éœ€è¦é‡å¤çš„ K æ¬¡
+    % Ëæ»ú»¯ĞèÒªÖØ¸´µÄ K ´Î
     if ~isLearn
         repKNeed = Shuffle(CONF.repKNeed);
     else
         repKNeed = Shuffle(CONF.learnRepKNeed);
     end
-    % é’ˆå¯¹ ISI å’Œ NUM Seeker åˆ†åˆ«éå† K æ¬¡è¯•éªŒ
+    % Õë¶Ô ISI ºÍ NUM Seeker ·Ö±ğ±éÀú K ´ÎÊÔÑé
 
-    % ç”±äº EXP_SPEC åœ¨ k å˜åŒ–çš„å¾ªç¯ä¸­ä¸æ–­çš„å°†è‡ªèº«å¤åˆ¶ç»™ä¸‹ä¸€ä¸ª k å­—æ®µï¼Œ
-    % å› æ­¤æµªè´¹å†…å­˜ï¼Œæ‰€ä»¥è®¾ç½®ä¸€ä¸ªè¾“å‡º structï¼Œå°†æ‰€æœ‰ k{n} å†™å…¥åˆ°æ­¤ struct ä¸­è¿›è¡Œè¾“å‡º
+    % ÓÉÓÚ EXP_SPEC ÔÚ k ±ä»¯µÄÑ­»·ÖĞ²»¶ÏµÄ½«×ÔÉí¸´ÖÆ¸øÏÂÒ»¸ö k ×Ö¶Î£¬
+    % Òò´ËÀË·ÑÄÚ´æ£¬ËùÒÔÉèÖÃÒ»¸öÊä³ö struct£¬½«ËùÓĞ k{n} Ğ´Èëµ½´Ë struct ÖĞ½øĞĞÊä³ö
     EXP_SPEC_OUT = EXP_SPEC; 
-    % å¯¹äº seekForISI æˆ–è€… seekForNumï¼Œéœ€è¦åˆ é™¤çš„å­—æ®µä¸åŒ
+    % ¶ÔÓÚ seekForISI »òÕß seekForNum£¬ĞèÒªÉ¾³ıµÄ×Ö¶Î²»Í¬
     if EXP_SPEC.seekForISI
         fields = {'name','gender','note','startTime','picID','seekForISI'};
     else
@@ -302,8 +302,8 @@ function EXP_SPEC_OUT = initCondition(SCR, EXP, CONF, isSeg, isLearn)
             fprintf('%-20s System will Use repK %1.3f\n','[MAIN][ISI][SET-K]',k);
             EXP_SPEC.usedK = k;
             [~, EXP_SPEC_K] = runISISeeker(SCR, EXP_SPEC, CONF);
-            % å¯¹äº ISISeeker è€Œè¨€ï¼ŒEXP_SPEC å³æ˜¯ä¼ å…¥çš„ EXP structï¼Œå…¶åº”è¯¥åŒ…å«äº†æ‰€æœ‰ä¿¡æ¯
-            % ä½†æ˜¯å¯¹äºæˆ‘ä»¬è€Œè¨€ï¼Œè¿™éƒ¨åˆ†ä¿¡æ¯åœ¨ä¸åŒçš„ k{n} ä¸­é‡å¤ï¼Œå› æ­¤ä»…ä¿ç•™ EXP_SPEC_OUT ä¸­çš„æ•°æ®å³å¯ï¼Œè€Œå°† k{n} å­—æ®µä¸­çš„å€¼åˆ å»ã€‚
+            % ¶ÔÓÚ ISISeeker ¶øÑÔ£¬EXP_SPEC ¼´ÊÇ´«ÈëµÄ EXP struct£¬ÆäÓ¦¸Ã°üº¬ÁËËùÓĞĞÅÏ¢
+            % µ«ÊÇ¶ÔÓÚÎÒÃÇ¶øÑÔ£¬Õâ²¿·ÖĞÅÏ¢ÔÚ²»Í¬µÄ k{n} ÖĞÖØ¸´£¬Òò´Ë½ö±£Áô EXP_SPEC_OUT ÖĞµÄÊı¾İ¼´¿É£¬¶ø½« k{n} ×Ö¶ÎÖĞµÄÖµÉ¾È¥¡£
             EXP_SPEC_K = rmfield(EXP_SPEC_K, fields);
             EXP_SPEC_OUT.("k" + k) = EXP_SPEC_K;
         end
