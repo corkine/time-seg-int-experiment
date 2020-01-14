@@ -55,7 +55,7 @@ if CONF.debug
 	CONF.repKNeed = [5, 6];
 	CONF.learnRepKNeed = 5;
 else
-	CONF.isiNeedFs = [0, 1, 2, 3, 4, 5, 6];
+	CONF.isiNeedFs = [0, 1, 2, 4, 5, 6];
 	CONF.learnTakeIsiNeedFs = 5;
 	CONF.numberNeed = [1, 2, 3, 4, 5];
 	CONF.learnTakeNumberNeed = [2, 4];
